@@ -50,8 +50,8 @@ def register(request):
         form = registerForm(request.POST)
         if form.is_valid():
             email = form.cleaned_data['email']
-            password = form.cleaned_data['password']
             username = form.cleaned_data['username']
+            password = form.cleaned_data['password']
             # username=email, email=username this is for purpose. so user will login by its email
             try:
                 user = User.objects.create_user(username=email, email=username, password=password)

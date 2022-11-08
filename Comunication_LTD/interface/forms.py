@@ -2,14 +2,6 @@ from django import forms
 from config import password_pattern,min_password_length,forbidden_passwords
 from django.core.exceptions import ValidationError
 
-
-def minmin_password_length(password: str):
-    if len(password) < int(min_password_length):
-        raise ValidationError(
-            ('The password must be minimum 8 characters'),
-            params={'value': password},
-        )
-
 def is_common_password(password: str):
     if password in forbidden_passwords:
         raise ValidationError(
@@ -17,7 +9,8 @@ def is_common_password(password: str):
             params={'value': password},
         )
 # TODO: Implement password history check, and login attempts
-# TODO: fix regex validation (if not working)
+# TODO: shoot tuvia in the head
+
 class LoginForm(forms.Form):
     email = forms.CharField(label=('email'), widget=forms.TextInput(attrs={
         'placeholder':('Email'),
@@ -48,13 +41,13 @@ class registerForm(forms.Form):
         'onfocus': "this.placeholder=''",
         'onblur': "this.placeholder='username'"
     }))
-    password = forms.CharField(validators=[minmin_password_length, is_common_password],label=('password'), widget=forms.TextInput(attrs={
+    password = forms.CharField(validators=[is_common_password],min_length=min_password_length,label=('password'), widget=forms.TextInput(attrs={
         'placeholder':('Password'),
         'class': 'form-control fadeIn second m-2 shadow-sm',
         'onfocus': "this.placeholder=''",
         'onblur': "this.placeholder='password'",
         'type': 'password',
-        # 'pattern' : password_pattern
-
+        'pattern': password_pattern,
+        'title': 'Use 8 or more characters with a mix of letters, numbers'
     }))
 
