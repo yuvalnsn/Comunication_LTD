@@ -1,16 +1,23 @@
 from django import forms
-from config import password_pattern,min_password_length
+from config import password_pattern,min_password_length,forbidden_passwords
 from django.core.exceptions import ValidationError
 
 
-def minmin_password_length(value):
-    print(int(min_password_length))
-    if len(value) < int(min_password_length):
+def minmin_password_length(password: str):
+    if len(password) < int(min_password_length):
         raise ValidationError(
             ('The password must be minimum 8 characters'),
-            params={'value': value},
+            params={'value': password},
         )
 
+def is_common_password(password: str):
+    if password in forbidden_passwords:
+        raise ValidationError(
+            ('Your password is too weak!'),
+            params={'value': password},
+        )
+# TODO: Implement password history check, and login attempts
+# TODO: fix regex validation (if not working)
 class LoginForm(forms.Form):
     email = forms.CharField(label=('email'), widget=forms.TextInput(attrs={
         'placeholder':('Email'),
@@ -41,7 +48,7 @@ class registerForm(forms.Form):
         'onfocus': "this.placeholder=''",
         'onblur': "this.placeholder='username'"
     }))
-    password = forms.CharField(validators=[minmin_password_length],label=('password'), widget=forms.TextInput(attrs={
+    password = forms.CharField(validators=[minmin_password_length, is_common_password],label=('password'), widget=forms.TextInput(attrs={
         'placeholder':('Password'),
         'class': 'form-control fadeIn second m-2 shadow-sm',
         'onfocus': "this.placeholder=''",
