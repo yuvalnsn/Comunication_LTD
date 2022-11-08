@@ -6,7 +6,7 @@
 <div class="card border-primary mb-3 text-center " style="width: 20rem;">
  {% include 'messages.html' %}
   <div class="card-body text-center ">
-    <h3 class="card-title mb-2">Login</h3>
+    <h3 class="card-title mb-2">Register</h3>
 <div class="input-group mb-3 d-flex text-center justify-content-center">
   <div class="input-group-prepend">
   </div>
@@ -20,14 +20,15 @@
                             </div>
                         {% endfor %}
                     {% endfor %}
-        <button href="{% url 'interface:dashboard' %}" class="btn btn-primary mb-2 mt-2"> Login</button>
+        <button href="{% url 'interface:dashboard' %}" class="btn btn-primary mb-2 mt-2"> Create user</button>
+
     </form>
-<a href="{% url 'interface:forGotPassword' %}" class="btn btn-link mb-1  mb-1"> Forgot password</a>
-    <a href="{% url 'interface:register' %}" class="btn btn-link mb-1  mb-1"> Not a user? Register</a>
+            <a href="{% url 'interface:login' %}" class="btn btn-primary mb-2 mt-2"> Back to login</a>
 
 </div>
 </div>
 </div>
 </div>
 
-    {% endblock %}
+
+{% endblock %}
