@@ -49,13 +49,16 @@ def register(request):
     if request.method == "POST":
         form = registerForm(request.POST)
         if form.is_valid():
-            print("hio")
             email = form.cleaned_data['email']
             password = form.cleaned_data['password']
             username = form.cleaned_data['username']
             # username=email, email=username this is for purpose. so user will login by its email
-            user = User.objects.create_user(username=email, email=username, password=password)
-            user.save()
+            try:
+                user = User.objects.create_user(username=email, email=username, password=password)
+                user.save()
+            except Exception as e:
+                messages.error(request, e)
+                return render(request, "register.html", {'form': form})
             return redirect('/interface/login')
         return render(request, "register.html", {'form': form})
     form = registerForm()
