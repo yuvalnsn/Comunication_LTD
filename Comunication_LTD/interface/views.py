@@ -51,7 +51,7 @@ def register(request):
     if request.method == "POST": # user is trying to signup
         form = registerForm(request.POST)
         if not form.is_valid():
-            return redirect('/interface/login')
+            return render(request, "register.html", {'form': form})
     #     form is valid (password satisfies the conditions)
         email = form.cleaned_data['email']
         username = form.cleaned_data['username']
