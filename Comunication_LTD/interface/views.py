@@ -13,6 +13,8 @@ def dashboard(request):
 
     return render(request,"dashboard.html", {})
 
+# DOTO: fix login function, swap between username, and email in db
+# In addition make code more readable
 def login(request):
     if request.method == "POST":
         form = LoginForm(request.POST)
@@ -55,20 +57,21 @@ def register(request):
         username = form.cleaned_data['username']
         password = form.cleaned_data['password']
 
-        if User.objects.filter(username = username):
+        if User.objects.filter(username = username).exists():
             messages.error(request, "Username is already exists")
             return redirect('/interface/login')
 
-        if User.objects.filter(email = email):
+        if User.objects.filter(email = email).exists():
             messages.error(request, "Email already registered")
             return redirect('/interface/login')
 
     #     username and email are unique
         user = User.objects.create_user(username=username, email=email, password=password)
         user.save()
+    #     insert user into the db
+
         return redirect('/interface/login')
 
-    #     insert user into the db
     else: # [GET] loading register form
         form = registerForm()
         return render(request,"register.html", {'form': form})
