@@ -46,22 +46,29 @@ def forGotPassword(request):
 
 
 def register(request):
-    if request.method == "POST":
+    if request.method == "POST": # user is trying to signup
         form = registerForm(request.POST)
-        if form.is_valid():
-            email = form.cleaned_data['email']
-            username = form.cleaned_data['username']
-            password = form.cleaned_data['password']
-            # username=email, email=username this is for purpose. so user will login by its email
-            try:
-                user = User.objects.create_user(username=email, email=username, password=password)
-                user.save()
-            except Exception as e:
-                messages.error(request, e)
-                return render(request, "register.html", {'form': form})
+        if not form.is_valid():
             return redirect('/interface/login')
-        return render(request, "register.html", {'form': form})
-    form = registerForm()
-    return render(request,"register.html", {'form': form})
+    #     form is valid (password satisfies the conditions)
+        email = form.cleaned_data['email']
+        username = form.cleaned_data['username']
+        password = form.cleaned_data['password']
 
+        if User.objects.filter(username = username):
+            messages.error(request, "Username is already exists")
+            return redirect('/interface/login')
 
+        if User.objects.filter(email = email):
+            messages.error(request, "Email already registered")
+            return redirect('/interface/login')
+
+    #     username and email are unique
+        user = User.objects.create_user(username=username, email=email, password=password)
+        user.save()
+        return redirect('/interface/login')
+
+    #     insert user into the db
+    else: # [GET] loading register form
+        form = registerForm()
+        return render(request,"register.html", {'form': form})
