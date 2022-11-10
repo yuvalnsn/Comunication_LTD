@@ -1,9 +1,10 @@
 {% extends 'base.html' %}
+{% block title %}Communication LTD | Log in{% endblock %}
 {% block content %}
 
 <div class="row d-flex text-center justify-content-center mt-5">
     <h1> Comunication LTD </h1>
-<div class="card border-primary mb-3 text-center " style="width: 20rem;">
+<div class="card border-primary mb-3 text-center " style="width: 20rem;height: 30rem ">
  {% include 'messages.html' %}
   <div class="card-body text-center ">
     <h3 class="card-title mb-2">Login</h3>
@@ -13,13 +14,13 @@
 <form method="post">
         {% csrf_token %}
             {% for field in form %}
-                        {{ field.label_tag }} {{ field }}
-                        {% for error in field.errors %}
-                            <div class="alert alert-danger">
-                                <strong>{{ error|escape }}</strong>
-                            </div>
-                        {% endfor %}
-                    {% endfor %}
+                {{ field.label_tag }} {{ field }}
+                    {% for error in field.errors %}
+                        <div class="alert alert-danger">
+                            <strong>{{ error|escape }}</strong>
+                        </div>
+                {% endfor %}
+            {% endfor %}
         <button href="{% url 'interface:dashboard' %}" class="btn btn-primary mb-2 mt-2"> Login</button>
     </form>
 <a href="{% url 'interface:forGotPassword' %}" class="btn btn-link mb-1  mb-1"> Forgot password</a>
