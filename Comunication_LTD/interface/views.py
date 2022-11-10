@@ -21,7 +21,7 @@ def login(request):
         if not form.is_valid():
             return render(request,"login.html", {'form': LoginForm()})
         #   form is valid
-        username = form.cleaned_data['username'] # email fix it dahuf
+        username = form.cleaned_data['username']
         password = form.cleaned_data['password']
 
         user = authenticate(username=username, password=password)
@@ -70,7 +70,7 @@ def register(request):
         user = User.objects.create_user(username=username, email=email, password=password)
         user.save()
     #     insert user into the db
-
+        messages.success(request, "Your account has been created.")
         return redirect('/interface/login')
 
     else: # [GET] loading register form
