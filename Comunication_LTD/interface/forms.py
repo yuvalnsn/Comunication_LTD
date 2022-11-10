@@ -12,13 +12,13 @@ def is_common_password(password: str):
 # TODO: shoot tuvia in the head
 
 class LoginForm(forms.Form):
-    email = forms.CharField(label=('email'), widget=forms.TextInput(attrs={
-        'placeholder':('Email'),
+    username = forms.CharField(label=('Username'), widget=forms.TextInput(attrs={
+        'placeholder':('Username'),
         'class': "form-control fadeIn second m-2 shadow-sm",
         'onfocus': "this.placeholder=''",
-        'onblur': "this.placeholder='Email'"
+        'onblur': "this.placeholder='Username'"
     }))
-    password = forms.CharField(label=('password'), widget=forms.TextInput(attrs={
+    password = forms.CharField(label=('Password'), widget=forms.TextInput(attrs={
         'placeholder':('Password'),
         'class': 'form-control fadeIn second m-2 shadow-sm',
         'onfocus': "this.placeholder=''",
