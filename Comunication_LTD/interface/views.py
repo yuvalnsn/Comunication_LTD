@@ -16,24 +16,25 @@ def dashboard(request):
 # DOTO: fix login function, swap between username, and email in db
 # In addition make code more readable
 def login(request):
-    if request.method == "POST":
+    if request.method == "POST": # user is trying to signin
         form = LoginForm(request.POST)
-        if form.is_valid():
-            email = form.cleaned_data['email']
-            password = form.cleaned_data['password']
-            try:
-                user = authenticate(username=email, password=password)
-                if(user):
-                    return render(request, "dashboard.html", {'form': form})
-                else:
-                    messages.error(request, "Email or password not matching")
-                    return render(request, "login.html", {'form': form})
-            except Exception as e:
-                messages.error(request, e)
-                return render(request, "login.html", {'form': form})
-    form = LoginForm()
-    return render(request,"login.html", {'form':form})
+        if not form.is_valid():
+            return render(request,"login.html", {'form': LoginForm()})
+        #   form is valid
+        username = form.cleaned_data['username'] # email fix it dahuf
+        password = form.cleaned_data['password']
 
+        user = authenticate(username=username, password=password)
+
+        if user is None:
+            messages.error(request, "Password or username is incorrect")
+            return redirect('/interface/login')
+
+        else: # username and password is correct
+            return redirect('/interface/dashboard')
+
+    else: # [GET] loading login form
+        return render(request,"login.html", {'form': LoginForm()})
 def logout(request):
     try:
         request.session.flush()
