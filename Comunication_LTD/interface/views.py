@@ -10,7 +10,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth import login, authenticate
 
 def dashboard(request):
-
+    print(colored(request.session['userId'],'cyan') )
     return render(request,"dashboard.html", {})
 
 # DOTO: fix login function, swap between username, and email in db
@@ -31,6 +31,7 @@ def login(request):
             return redirect('/interface/login')
 
         else: # username and password is correct
+            request.session['userId'] = username
             return redirect('/interface/dashboard')
 
     else: # [GET] loading login form
