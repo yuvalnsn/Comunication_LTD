@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 
 from pathlib import Path
 from django.contrib.messages import constants as messages
+AUTH_USER_MODEL = 'interface.CustomUser'
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -79,13 +80,14 @@ WSGI_APPLICATION = 'Comunication_LTD.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'PROJECT_HIT',
+        'NAME': 'PROJECT_HITT',
         'USER': 'root',
         'PASSWORD': 'hithit123',
         'HOST':'localhost',
         'PORT':'3306',}
 }
 
+#AUTH_USER_MODEL="Comunication_LTD.CustomUser"
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
@@ -95,14 +97,19 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
         'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
     },
     {
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
+    {
+        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'OPTIONS': {'min_length': 9, }
+    },
+    {
+        'NAME': 'interface.validators.DontRepeatValidator',
+        'OPTIONS': {'history': 2}
+    }
 ]
 
 
@@ -151,6 +158,7 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'yuvalnsn@gmail.com'
 EMAIL_HOST_PASSWORD = ''
+
 
 TEMPLATE_DIRS = (
     os.path.join(SETTINGS_PATH, 'templates'),

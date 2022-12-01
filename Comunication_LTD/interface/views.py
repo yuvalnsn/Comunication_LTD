@@ -7,15 +7,19 @@ from os import linesep as ln
 from django.contrib import messages
 # from interface.models import User
 from django.contrib.auth.models import User
-from django.contrib.auth import login, authenticate
+from django.contrib.auth import authenticate, login
+from interface.models import CustomUser
+
+from django.conf import settings
+
 
 def dashboard(request):
-    print(colored(request.session['userId'],'cyan') )
+    userId=request.user
+    if not request.user.is_authenticated:
+        return redirect('%s?next=%s' % (settings.LOGIN_URL, request.path))
     return render(request,"dashboard.html", {})
 
-# DOTO: fix login function, swap between username, and email in db
-# In addition make code more readable
-def login(request):
+def login2(request):
     if request.method == "POST": # user is trying to signin
         form = LoginForm(request.POST)
         if not form.is_valid():
@@ -31,49 +35,46 @@ def login(request):
             return redirect('/interface/login')
 
         else: # username and password is correct
-            request.session['userId'] = username
+            login(request, user)
             return redirect('/interface/dashboard')
 
     else: # [GET] loading login form
         return render(request,"login.html", {'form': LoginForm()})
+
 def logout(request):
     try:
+        logout(request)
         request.session.flush()
     except:
         print("Error")
         pass
     return redirect('/interface/login')
 
-
-def forGotPassword(request):
-    return render(request,"forGotPassword.html", {})
-
-
 def register(request):
     if request.method == "POST": # user is trying to signup
-        form = registerForm(request.POST)
+        form = CustomUserCreationForm(request.POST)
         if not form.is_valid():
             return render(request, "register.html", {'form': form})
     #     form is valid (password satisfies the conditions)
         email = form.cleaned_data['email']
         username = form.cleaned_data['username']
-        password = form.cleaned_data['password']
+        password = form.cleaned_data['password1']
 
-        if User.objects.filter(username = username).exists():
+        if CustomUser.objects.filter(username = username).exists():
             messages.error(request, "Username is already exists")
             return redirect('/interface/login')
 
-        if User.objects.filter(email = email).exists():
+        if CustomUser.objects.filter(email = email).exists():
             messages.error(request, "Email already registered")
             return redirect('/interface/login')
 
     #     username and email are unique
-        user = User.objects.create_user(username=username, email=email, password=password)
+        user = CustomUser.objects.create_user(username=username, email=email, password=password)
         user.save()
     #     insert user into the db
         messages.success(request, "Your account has been created.")
         return redirect('/interface/login')
 
     else: # [GET] loading register form
-        form = registerForm()
+        form = CustomUserCreationForm()
         return render(request,"register.html", {'form': form})

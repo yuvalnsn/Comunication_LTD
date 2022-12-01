@@ -8,9 +8,8 @@ app_name = 'interface'
 
 urlpatterns = [
     path('dashboard', views.dashboard, name='dashboard'),
-    path('login', views.login, name='login'),
+    path('login', views.login2, name='login'),
     path('logout', views.logout, name='logout'),
-    path('forGotPassword', views.forGotPassword, name='forGotPassword'),
     path('register', views.register, name='register'),
 
     path('reset_password/',auth_views.PasswordResetView.as_view(template_name="password_reset.html"),name="reset_password"),

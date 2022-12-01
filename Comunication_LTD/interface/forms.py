@@ -1,8 +1,8 @@
 from django import forms
 from config import password_pattern,min_password_length,forbidden_passwords
 from django.core.exceptions import ValidationError
-from django.contrib.auth.password_validation import get_default_password_validators, password_validators_help_text_html
-
+from django.contrib.auth.forms import UserCreationForm, SetPasswordForm
+from interface.models import CustomUser
 
 def is_common_password(password: str):
     if password in forbidden_passwords:
@@ -29,6 +29,30 @@ class LoginForm(forms.Form):
     }))
 
 
+class CustomUserCreationForm(UserCreationForm):
+    def __init__(self, *args, **kwargs):
+        super(UserCreationForm, self).__init__(*args, **kwargs)
+        self.fields['password1'].required = False
+        self.fields['password2'].required = False
+        # If one field gets autocompleted but not the other, our 'neither
+        # password or both password' validation will be triggered.
+        self.fields['password1'].widget.attrs['autocomplete'] = 'off'
+        self.fields['password2'].widget.attrs['autocomplete'] = 'off'
+
+    class Meta:
+        model = CustomUser
+        fields = ('username', 'email')
+
+class CustomUserChangeForm(SetPasswordForm):
+
+    class Meta:
+        model = CustomUser
+        fields = ('username', 'email')
+
+
+
+
+        ##############
 
 class registerForm(forms.Form):
     email = forms.CharField(label=('email'), widget=forms.TextInput(attrs={
@@ -84,6 +108,7 @@ class SetPasswordForm2(forms.Form):
     def clean_new_password2(self):
         password1 = self.cleaned_data.get('new_password1')
         password2 = self.cleaned_data.get('new_password2')
+        print(self.user)
         if password1 and password2:
             if password1 != password2:
                 raise ValidationError(
@@ -99,3 +124,5 @@ class SetPasswordForm2(forms.Form):
         if commit:
             self.user.save()
         return self.user
+
+#
