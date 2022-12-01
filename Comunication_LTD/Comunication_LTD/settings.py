@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 
 from pathlib import Path
 from django.contrib.messages import constants as messages
+from config import emailKey,min_password_length,limitPasswordHistory,db_pass
 AUTH_USER_MODEL = 'interface.CustomUser'
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -82,7 +83,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'PROJECT_HITT',
         'USER': 'root',
-        'PASSWORD': 'hithit123',
+        'PASSWORD': db_pass,
         'HOST':'localhost',
         'PORT':'3306',}
 }
@@ -104,11 +105,11 @@ AUTH_PASSWORD_VALIDATORS = [
     },
     {
         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-        'OPTIONS': {'min_length': 9, }
+        'OPTIONS': {'min_length': min_password_length}
     },
     {
         'NAME': 'interface.validators.DontRepeatValidator',
-        'OPTIONS': {'history': 2}
+        'OPTIONS': {'history': limitPasswordHistory}
     }
 ]
 
@@ -157,7 +158,7 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'yuvalnsn@gmail.com'
-EMAIL_HOST_PASSWORD = ''
+EMAIL_HOST_PASSWORD = emailKey
 
 
 TEMPLATE_DIRS = (
