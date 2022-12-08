@@ -8,8 +8,8 @@ min_password_length = int(config["register"]["minPasswordLength"])
 password_pattern = config["register"]["passwordpattern"]
 forbidden_passwords = config["register"]["commonpasswords"].split(",")
 limit_password_history = int(config["register"]["limitpasswordhistory"])
-# login_attempts = config["register"]["log
-
-db_pass=str(config['db_pass']['db_pass'])
-emailKey=str(config['emailKey']['key'])
+loging_attempts = int(config['login']['loginAttempts'])
+cooloff_time = int(config['login']['cooloffTime'])
+db_pass = config['dbPass']['db_pass']
+emailKey = config['emailKey']['key']
 
