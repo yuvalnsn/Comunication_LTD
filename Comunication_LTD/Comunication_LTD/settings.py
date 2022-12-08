@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 
 from pathlib import Path
 from django.contrib.messages import constants as messages
-from config import emailKey,min_password_length,limit_password_history,db_pass,loging_attempts,cooloff_time
+from config import emailKey,min_password_length,limit_password_history,db_pass,db_name,loging_attempts,cooloff_time
 
 AUTH_USER_MODEL = 'interface.CustomUser'
 LOGIN_URL = '/interface/login'
@@ -84,7 +84,7 @@ WSGI_APPLICATION = 'Comunication_LTD.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'PROJECT_HITT',
+        'NAME': db_name,
         'USER': 'root',
         'PASSWORD': db_pass,
         'HOST':'localhost',
