@@ -12,7 +12,8 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 
 from pathlib import Path
 from django.contrib.messages import constants as messages
-from config import emailKey,min_password_length,limitPasswordHistory,db_pass
+from config import emailKey,min_password_length,limit_password_history,db_pass,loging_attempts,cooloff_time
+
 AUTH_USER_MODEL = 'interface.CustomUser'
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -35,6 +36,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'axes',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -45,6 +47,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'axes.middleware.AxesMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -81,7 +84,7 @@ WSGI_APPLICATION = 'Comunication_LTD.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'PROJECT_HITT',
+        'NAME': 'PROJECT_HIT',
         'USER': 'root',
         'PASSWORD': db_pass,
         'HOST':'localhost',
@@ -109,7 +112,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
     {
         'NAME': 'interface.validators.DontRepeatValidator',
-        'OPTIONS': {'history': limitPasswordHistory}
+        'OPTIONS': {'history': limit_password_history}
     }
 ]
 
@@ -164,3 +167,12 @@ EMAIL_HOST_PASSWORD = emailKey
 TEMPLATE_DIRS = (
     os.path.join(SETTINGS_PATH, 'templates'),
 )
+
+AUTHENTICATION_BACKENDS = [
+   'axes.backends.AxesBackend', # Axes must be first
+   'django.contrib.auth.backends.ModelBackend',
+]
+
+AXES_FAILURE_LIMIT = loging_attempts
+AXES_COOLOFF_TIME = (cooloff_time / 60)
+AXES_LOCK_OUT_BY_COMBINATION_USER_AND_IP = True

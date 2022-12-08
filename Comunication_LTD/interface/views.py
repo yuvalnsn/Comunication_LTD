@@ -28,7 +28,7 @@ def login2(request):
         username = form.cleaned_data['username']
         password = form.cleaned_data['password']
 
-        user = authenticate(username=username, password=password)
+        user = authenticate(request, username=username, password=password)
 
         if user is None:
             messages.error(request, "Password or username is incorrect")
