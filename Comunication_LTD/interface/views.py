@@ -85,7 +85,8 @@ def registerCustomer(request):
             return render(request, "register.html", {'form': form})
         firstName = form.cleaned_data['firstName']
         lastName = form.cleaned_data['lastName']
-        username=request.user
+        username = str(request.user)
+        print(username)
         customer = Customer.objects.create(customerFirstName=firstName, customerLastName=lastName, username=username)
         customer.save()
         messages.success(request, "Your account has been created.")

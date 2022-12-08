@@ -29,7 +29,7 @@ class CustomUserPasswordHistory(models.Model):
 
 
 class Customer(models.Model):
-    username = models.CharField(max_length=100, primary_key=True)
+    username = models.CharField(max_length=100)
     customerFirstName = models.CharField(max_length=128)
     customerLastName = models.CharField(max_length=128)
 
