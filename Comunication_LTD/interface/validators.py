@@ -1,4 +1,3 @@
-import re
 from django.contrib.auth.hashers import check_password
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext as _
@@ -26,12 +25,8 @@ class DontRepeatValidator:
 
     def _get_last_passwords(self, user):
         all_history_user_passwords = CustomUserPasswordHistory.objects.filter(username_id=user).order_by('id')
-        print( all_history_user_passwords)
         to_index = all_history_user_passwords.count() - self.history
-        print(to_index)
         to_index = to_index if to_index > 0 else None
         if to_index:
             [u.delete() for u in all_history_user_passwords[0:to_index]]
-
-        print([p.old_pass for p in all_history_user_passwords[to_index:]])
         return [p.old_pass for p in all_history_user_passwords[to_index:]]

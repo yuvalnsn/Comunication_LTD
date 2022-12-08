@@ -1,15 +1,10 @@
-from django.http import HttpResponse
-import mysql.connector
+
 from django.shortcuts import render, redirect
 from .forms import *
-from termcolor import colored
-from os import linesep as ln
+#from termcolor import colored
 from django.contrib import messages
-# from interface.models import User
-from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
-from interface.models import CustomUser
-
+from interface.models import CustomUser, Customer
 from django.conf import settings
 
 
@@ -78,3 +73,35 @@ def register(request):
     else: # [GET] loading register form
         form = CustomUserCreationForm()
         return render(request,"register.html", {'form': form})
+
+def registerCustomer(request):
+    if not request.user.is_authenticated:
+        return redirect('%s?next=%s' % (settings.LOGIN_URL, request.path))
+    form = registerCustomerForm()
+
+    if request.method == "POST": # user is trying to signup
+        form = registerCustomerForm(request.POST)
+        if not form.is_valid():
+            return render(request, "register.html", {'form': form})
+        firstName = form.cleaned_data['firstName']
+        lastName = form.cleaned_data['lastName']
+        username=request.user
+        customer = Customer.objects.create(customerFirstName=firstName, customerLastName=lastName, username=username)
+        customer.save()
+        messages.success(request, "Your account has been created.")
+        return redirect('/interface/customers')
+    else:
+        return render(request, "registerCustomer.html", {'form': form})
+
+
+def customers(request):
+    if not request.user.is_authenticated:
+        return redirect('%s?next=%s' % (settings.LOGIN_URL, request.path))
+    userId=request.user
+    customers=Customer.objects.filter(username=userId)
+    firstNames=list(customers.values_list('customerFirstName',flat=True))
+    lastNames=list(customers.values_list('customerLastName',flat=True))
+    res = dict(map(lambda i, j: (i, j), firstNames, lastNames))
+
+
+    return render(request, "customers.html",{'res':res})

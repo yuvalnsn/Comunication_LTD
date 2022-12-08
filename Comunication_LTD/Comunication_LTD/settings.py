@@ -12,9 +12,9 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 
 from pathlib import Path
 from django.contrib.messages import constants as messages
-from config import emailKey,min_password_length,limitPasswordHistory,db_pass
+from config import emailKey,min_password_length,limit_password_history,db_pass
 AUTH_USER_MODEL = 'interface.CustomUser'
-
+LOGIN_URL = '/interface/login'
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -109,7 +109,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
     {
         'NAME': 'interface.validators.DontRepeatValidator',
-        'OPTIONS': {'history': limitPasswordHistory}
+        'OPTIONS': {'history': limit_password_history}
     }
 ]
 

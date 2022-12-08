@@ -26,3 +26,11 @@ class CustomUserPasswordHistory(models.Model):
     @classmethod
     def remember_password(cls, user):
         cls(username=user, old_pass=user.password, pass_date=localtime()).save()
+
+
+class Customer(models.Model):
+    username = models.CharField(max_length=100, primary_key=True)
+    customerFirstName = models.CharField(max_length=128)
+    customerLastName = models.CharField(max_length=128)
+
+

@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block content %}
+{% include 'navbar.html' %}
+
+<div class="row d-flex text-center justify-content-center mt-5">
+<h3>create new customer</h3>
+<div class="card border-primary mb-3 text-center " style="width: 20rem;height: 30rem ">
+
+<form method="post">
+
+	{% csrf_token %}
+	{{form}}
+	<input type="Submit" name="create">
+
+</form>
+	</div>
+		</div>
+
+	    {% endblock %}
