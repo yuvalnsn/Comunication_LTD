@@ -2,6 +2,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils.timezone import localtime
+from config import sec_lvl,db_name
 
 
 class CustomUser(AbstractUser):
@@ -26,6 +27,8 @@ class CustomUserPasswordHistory(models.Model):
     @classmethod
     def remember_password(cls, user):
         cls(username=user, old_pass=user.password, pass_date=localtime()).save()
+
+
 
 
 class Customer(models.Model):

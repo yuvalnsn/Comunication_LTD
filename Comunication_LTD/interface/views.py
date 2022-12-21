@@ -4,9 +4,10 @@ from .forms import *
 #from termcolor import colored
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
-from interface.models import CustomUser, Customer
+from interface.models import CustomUser, Customer,CustomUserPasswordHistory
 from django.conf import settings
-from config import sec_lvl
+from config import sec_lvl,db_name
+from django.contrib.auth import signals
 
 from django.db import connection
 import datetime
@@ -35,6 +36,7 @@ def login2(request):
         password = form.cleaned_data['password']
         if sec_lvl == 'high':
             user = authenticate(request, username=username, password=password)
+            print(type(user))
             if user is None:
                 messages.error(request, "Password or username is incorrect")
                 return redirect('/interface/login')
@@ -46,17 +48,27 @@ def login2(request):
         elif sec_lvl == 'low':
             sqlQuery = "SELECT 1 FROM interface_customuser WHERE username = '%s' AND password = '%s'" % (username, password)
             isValidUser = False
-
             with connection.cursor() as cursor:
                 cursor.execute(sqlQuery)
                 isValidUser = len(cursor.fetchall()) > 0
 
             # In case the password is not matching to the correct one
             if not isValidUser:
+                # inform django-axes of failed login
+                signals.user_login_failed.send(
+                    sender=CustomUser,
+                    request=request,
+                    credentials={
+                        'username': username,
+                    },
+                )
                 messages.error(request, "Password or username is incorrect")
                 return redirect('/interface/login')
 
             else:  # username and password is correct
+                sqlQuery=f"DELETE FROM {db_name}.axes_accessattempt WHERE username = '{username}'"
+                with connection.cursor() as cursor:
+                    cursor.execute(sqlQuery)
                 request.session['user'] = username
                 return redirect('/interface/dashboard')
 
@@ -93,10 +105,10 @@ def register(request):
             user = CustomUser.objects.create_user(username=username, email=email, password=password)
             user.save()
         elif sec_lvl == 'low':
-            sqlQuery = f"INSERT INTO interface_customuser (is_superuser, first_name, last_name, is_staff, is_active, date_joined, username, email, password) VALUES (0, '', '', 0, 0, %s, '{username}', '{email}', '{password}')"
+            sqlQuery = f"INSERT INTO interface_customuser (is_superuser, first_name, last_name, is_staff, is_active, date_joined, username, email, password) VALUES (0, '', '', 0, 1, %s, '{username}', '{email}', '{password}')"
             with connection.cursor() as cursor:
                 cursor.execute(sqlQuery, [datetime.datetime.now()])
-
+            CustomUserPasswordHistory.remember_password(CustomUser.objects.get(username=username))
         messages.success(request, "Your account has been created.")
         return redirect('/interface/login')
 
