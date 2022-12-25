@@ -2,18 +2,27 @@
 {% block content %}
 {% include 'navbar.html' %}
 
-<div class="row d-flex text-center justify-content-center mt-5">
-<h3>create new customer</h3>
-<div class="card border-primary mb-3 text-center " style="width: 20rem;height: 30rem ">
+<section class="vh-100" style="background-color: #C6DEFF;">
+    <div class="container py-5 h-100">
+        <div class="row d-flex justify-content-center align-items-center h-100">
+            <div class="col-md-6">
+                <div class="card" style="border-radius: 1rem;">
+                    <div class="card-header d-flex align-items-center mb-3 pb-1">
+                        <i class="fas fa-cubes fa-2x mr-3" style="color: #ff6219;"></i>
+                        <span class="h1 fw-bold mb-0">Create new customer</span>
+                    </div>
+                    <div class="card-body p-4 p-lg-5 text-black">
+                        <form method="post">
+                            {% csrf_token %}
+                            {{form}}
+                            <button type="submit" class="btn btn-primary btn-block mt-3">Create</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 
-<form method="post">
 
-	{% csrf_token %}
-	{{form}}
-	<input type="Submit" name="create">
-
-</form>
-	</div>
-		</div>
-
-	    {% endblock %}
+{% endblock %}

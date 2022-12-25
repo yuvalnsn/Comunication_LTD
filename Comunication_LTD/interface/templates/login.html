@@ -2,33 +2,87 @@
 {% block title %}Communication LTD | Log in{% endblock %}
 {% block content %}
 
-<div class="row d-flex text-center justify-content-center mt-5">
-    <h1> Comunication LTD </h1>
-<div class="card border-primary mb-3 text-center " style="width: 20rem;height: 30rem ">
- {% include 'messages.html' %}
-  <div class="card-body text-center ">
-    <h3 class="card-title mb-2">Login</h3>
-<div class="input-group mb-3 d-flex text-center justify-content-center">
-  <div class="input-group-prepend">
-  </div>
-<form method="post">
-        {% csrf_token %}
-            {% for field in form %}
-                {{ field.label_tag }} {{ field }}
-                    {% for error in field.errors %}
-                        <div class="alert alert-danger">
-                            <strong>{{ error|escape }}</strong>
+<!--<div class="row d-flex text-center justify-content-center mt-5">-->
+<!--    <h1> Comunication LTD </h1>-->
+<!--<div class="card border-primary mb-3 text-center " style="width: 20rem;height: 30rem ">-->
+<!-- {% include 'messages.html' %}-->
+<!--  <div class="card-body text-center ">-->
+<!--    <h3 class="card-title mb-2">Login</h3>-->
+<!--<div class="input-group mb-3 d-flex text-center justify-content-center">-->
+<!--  <div class="input-group-prepend">-->
+<!--  </div>-->
+<!--<form method="post">-->
+<!--        {% csrf_token %}-->
+<!--            {% for field in form %}-->
+<!--                {{ field.label_tag }} {{ field }}-->
+<!--                    {% for error in field.errors %}-->
+<!--                        <div class="alert alert-danger">-->
+<!--                            <strong>{{ error|escape }}</strong>-->
+<!--                        </div>-->
+<!--                {% endfor %}-->
+<!--            {% endfor %}-->
+<!--        <button href="{% url 'interface:dashboard' %}" class="btn btn-primary mb-2 mt-2"> Login</button>-->
+<!--    </form>-->
+<!--<a href="{% url 'interface:reset_password' %}" class="btn btn-link mb-1  mb-1"> Forgot password</a>-->
+<!--    <a href="{% url 'interface:register' %}" class="btn btn-link mb-1  mb-1"> Not a user? Register</a>-->
+
+<!--</div>-->
+<!--</div>-->
+<!--</div>-->
+<!--</div>-->
+<section class="vh-100" style="background-color: #C6DEFF;">
+    <div class="container py-5 h-100">
+        <div class="row d-flex justify-content-center align-items-center h-100">
+            <div class="col col-xl-10">
+                <div class="card" style="border-radius: 1rem;">
+                    <div class="row g-0">
+                        <div class="col-md-6 col-lg-5 d-none d-md-block">
+                            <img alt="login form"
+                                 class="img-fluid" src="https://img.freepik.com/free-vector/forgot-password-concept-illustration_114360-1123.jpg?w=826
+              &t=st=1668170617~exp=1668171217~hmac=a660460f937f1cb226b858f29ab7ea588555e5a8fd8dbb798961d91664c43a72"
+                                 style="border-radius: 1rem 0 0 1rem;"/>
                         </div>
-                {% endfor %}
-            {% endfor %}
-        <button href="{% url 'interface:dashboard' %}" class="btn btn-primary mb-2 mt-2"> Login</button>
-    </form>
-<a href="{% url 'interface:reset_password' %}" class="btn btn-link mb-1  mb-1"> Forgot password</a>
-    <a href="{% url 'interface:register' %}" class="btn btn-link mb-1  mb-1"> Not a user? Register</a>
+                        <div class="col-md-6 col-lg-7 d-flex align-items-center">
+                            <div class="card-body p-4 p-lg-5 text-black">
+                                <div class="d-flex align-items-center mb-3 pb-1">
+                                    <i class="fas fa-cubes fa-2x me-3" style="color: #ff6219;"></i>
+                                    <span class="h1 fw-bold mb-0">Communication LTD</span>
+                                </div>
 
-</div>
-</div>
-</div>
-</div>
+                                <h5 class="fw-normal mb-3 pb-3" style="letter-spacing: 1px;">Sign into your
+                                    account</h5>
+                                {% for message in messages %}
+                                    {% if message.tags == 'error' %}
+                                    <li class="alert alert-danger" role="alert">{{ message }}</li>
+                                    {% elif message.tags == 'warning' %}
+                                    <li class="alert alert-warning" role="alert">{{ message }}</li>
+                                    {% elif message.tags == 'success' %}
+                                    <li class="alert alert-success" role="alert">{{ message }}</li>
+                                    {% else %}
+                                    <li class="alert alert-info" role="alert">{{ message }}</li>
+                                    {% endif %}
+                                {% endfor %}
+                                <form method="post">
+                                    {% csrf_token %}
+                                    {% for field in form %}
+                                    {{ field.label_tag }} {{ field }}
+                                    {% endfor %}
 
-    {% endblock %}
+                                    <br>
+                                    <div class="d-grid gap-2">
+                                        <button href="{% url 'interface:dashboard' %}" class="btn btn-primary btn-block mb-3 d-grid gap-2" >Login</button>
+                                    </div>
+                                </form>
+
+                                <a href="{% url 'interface:register' %}" class="btn btn-secondary btn-block d-grid gap-2">Sign up now</a>
+
+                                <a href="{% url 'interface:reset_password' %}" class="btn btn-link mb-1"> I Forgot my password</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
