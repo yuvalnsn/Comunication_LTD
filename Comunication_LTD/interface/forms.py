@@ -48,7 +48,6 @@ class CustomUserCreationForm(UserCreationForm):
         'onfocus': "this.placeholder=''",
         'onblur': "this.placeholder='Password'",
         'type': 'password',
-
     }))
     password2 = forms.CharField(label=('Password confirmation'), widget=forms.TextInput(attrs={
         'placeholder': ('Password'),

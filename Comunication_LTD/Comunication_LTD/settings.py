@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 
 from pathlib import Path
 from django.contrib.messages import constants as messages
-from config import emailKey,min_password_length,limit_password_history,db_pass,db_name,loging_attempts,cooloff_time
+from config import emailKey,min_password_length,limit_password_history,db_pass,db_name,loging_attempts,cooloff_time,password_pattern
 
 AUTH_USER_MODEL = 'interface.CustomUser'
 LOGIN_URL = '/interface/login'
@@ -104,15 +104,16 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
-    {
         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
         'OPTIONS': {'min_length': min_password_length}
     },
     {
         'NAME': 'interface.validators.DontRepeatValidator',
         'OPTIONS': {'history': limit_password_history}
+    },
+    {
+        'NAME': 'interface.validators.PatternValidator',
+        'OPTIONS': {'pattern': password_pattern}
     }
 ]
 

@@ -3,6 +3,7 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import gettext as _
 from interface.models import CustomUserPasswordHistory
 
+import re
 
 class DontRepeatValidator:
     def __init__(self, history=2):
@@ -30,3 +31,21 @@ class DontRepeatValidator:
         if to_index:
             [u.delete() for u in all_history_user_passwords[0:to_index]]
         return [p.old_pass for p in all_history_user_passwords[to_index:]]
+
+
+class PatternValidator:
+    def __init__(self, pattern):
+        self.pattern = pattern
+    def validate(self, password, user = None):
+        matched = re.match(self.pattern, password)
+
+        if not bool(matched):
+            self._raise_validation_error()
+    def _raise_validation_error(self):
+        raise ValidationError(
+            _("Your password does not meet the requirements"),
+            code='password_has_been_used',
+            params={'pattern': self.pattern},
+        )
+    def get_help_text(self):
+        return _("Your password does not meet the requirements")
