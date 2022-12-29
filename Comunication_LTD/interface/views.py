@@ -3,14 +3,26 @@ from django.shortcuts import render, redirect
 from .forms import *
 #from termcolor import colored
 from django.contrib import messages
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from interface.models import CustomUser, Customer
 from django.conf import settings
+from config import sec_lvl
+
+from django.db import connection
+import datetime
+
+#TODO: implement go-back browser button redirect to login, to dashboard, registernewcustomers, customers
+def is_logged_in(request):
+    if sec_lvl == 'high' and not request.user.is_authenticated:
+        return False
+    elif sec_lvl == 'low' and request.session['user'] == '':
+        return False
+    return True
 
 def dashboard(request):
-    userId=request.user
-    if not request.user.is_authenticated:
+    if not is_logged_in(request):
         return redirect('%s?next=%s' % (settings.LOGIN_URL, request.path))
+
     return render(request,"dashboard.html", {})
 
 def login2(request):
@@ -21,27 +33,42 @@ def login2(request):
         #   form is valid
         username = form.cleaned_data['username']
         password = form.cleaned_data['password']
+        if sec_lvl == 'high':
+            user = authenticate(request, username=username, password=password)
+            if user is None:
+                messages.error(request, "Password or username is incorrect")
+                return redirect('/interface/login')
 
-        user = authenticate(request, username=username, password=password)
+            else: # username and password is correct
+                login(request, user)
+                return redirect('/interface/dashboard')
 
-        if user is None:
-            messages.error(request, "Password or username is incorrect")
-            return redirect('/interface/login')
+        elif sec_lvl == 'low':
+            sqlQuery = "SELECT 1 FROM interface_customuser WHERE username = '%s' AND password = '%s'" % (username, password)
+            isValidUser = False
 
-        else: # username and password is correct
-            login(request, user)
-            return redirect('/interface/dashboard')
+            with connection.cursor() as cursor:
+                cursor.execute(sqlQuery)
+                isValidUser = len(cursor.fetchall()) > 0
+
+            # In case the password is not matching to the correct one
+            if not isValidUser:
+                messages.error(request, "Password or username is incorrect")
+                return redirect('/interface/login')
+
+            else:  # username and password is correct
+                request.session['user'] = username
+                return redirect('/interface/dashboard')
 
     else: # [GET] loading login form
         return render(request,"login.html", {'form': LoginForm()})
 
-def logout(request):
-    try:
-        logout(request)
-        request.session.flush()
-    except:
-        print("Error")
-        pass
+def logoutView(request):
+    if is_logged_in(request):
+        if sec_lvl == 'high':
+            logout(request)
+        elif sec_lvl == 'low':
+            request.session['user'] = ''
     return redirect('/interface/login')
 
 def register(request):
@@ -62,10 +89,14 @@ def register(request):
             messages.error(request, "Email already registered")
             return redirect('/interface/register')
 
-    #     username and email are unique
-        user = CustomUser.objects.create_user(username=username, email=email, password=password)
-        user.save()
-    #     insert user into the db
+        if sec_lvl == 'high':
+            user = CustomUser.objects.create_user(username=username, email=email, password=password)
+            user.save()
+        elif sec_lvl == 'low':
+            sqlQuery = f"INSERT INTO interface_customuser (is_superuser, first_name, last_name, is_staff, is_active, date_joined, username, email, password) VALUES (0, '', '', 0, 0, %s, '{username}', '{email}', '{password}')"
+            with connection.cursor() as cursor:
+                cursor.execute(sqlQuery, [datetime.datetime.now()])
+
         messages.success(request, "Your account has been created.")
         return redirect('/interface/login')
 
@@ -74,8 +105,9 @@ def register(request):
         return render(request,"register.html", {'form': form})
 
 def registerCustomer(request):
-    if not request.user.is_authenticated:
+    if not is_logged_in(request):
         return redirect('%s?next=%s' % (settings.LOGIN_URL, request.path))
+
     form = registerCustomerForm()
 
     if request.method == "POST": # user is trying to signup
@@ -84,10 +116,16 @@ def registerCustomer(request):
             return render(request, "register.html", {'form': form})
         firstName = form.cleaned_data['firstName']
         lastName = form.cleaned_data['lastName']
-        username = str(request.user)
-        print(username)
-        customer = Customer.objects.create(customerFirstName=firstName, customerLastName=lastName, username=username)
-        customer.save()
+        username = request.user if sec_lvl == 'high' else request.session['user']
+
+        if sec_lvl == 'high':
+            customer = Customer.objects.create(customerFirstName=firstName, customerLastName=lastName,username=username)
+            customer.save()
+        elif sec_lvl == 'low':
+            sqlQuery = "INSERT INTO project_hit.interface_customer (username, customerFirstName, customerLastName) VALUES ('%s', '%s', '%s')" % (username, firstName, lastName)
+            with connection.cursor() as cursor:
+                cursor.execute(sqlQuery)
+
         messages.success(request, "Your account has been created.")
         return redirect('/interface/customers')
     else:
@@ -95,12 +133,14 @@ def registerCustomer(request):
 
 
 def customers(request):
-    if not request.user.is_authenticated:
+    if not is_logged_in(request):
         return redirect('%s?next=%s' % (settings.LOGIN_URL, request.path))
-    userId=request.user
-    customers=Customer.objects.filter(username=userId)
-    firstNames=list(customers.values_list('customerFirstName',flat=True))
-    lastNames=list(customers.values_list('customerLastName',flat=True))
+
+    userId = request.user if sec_lvl == 'high' else request.session['user']
+    customers = Customer.objects.filter(username=userId)
+    firstNames = list(customers.values_list('customerFirstName',flat=True))
+    lastNames = list(customers.values_list('customerLastName',flat=True))
+
     res = dict(map(lambda i, j: (i, j), firstNames, lastNames))
 
 
