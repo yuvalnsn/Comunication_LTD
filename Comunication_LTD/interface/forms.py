@@ -1,8 +1,11 @@
 from django import forms
 from config import password_pattern,min_password_length,forbidden_passwords
 from django.core.exceptions import ValidationError
-from django.contrib.auth.forms import UserCreationForm, SetPasswordForm
-from interface.models import CustomUser,Customer
+from django.contrib.auth.forms import UserCreationForm
+from interface.models import CustomUser,Customer,CustomUserPasswordHistory
+from config import sec_lvl,db_name
+from django.db import connection
+import datetime
 
 def is_common_password(password: str):
     if password in forbidden_passwords:
@@ -27,6 +30,49 @@ class LoginForm(forms.Form):
         'type': 'password',
     }))
 
+class SetPasswordForm(forms.Form):
+        """
+        A form that lets a user change set their password without entering the old
+        password
+        """
+        error_messages = {
+            'password_mismatch': ("The two password fields didn't match."),
+        }
+        new_password1 = forms.CharField(label=("New password"),
+                                        widget=forms.PasswordInput)
+        new_password2 = forms.CharField(label=("New password confirmation"),
+                                        widget=forms.PasswordInput)
+
+        def __init__(self, user, *args, **kwargs):
+            self.user = user
+            super(SetPasswordForm, self).__init__(*args, **kwargs)
+
+        def clean_new_password2(self):
+            password1 = self.cleaned_data.get('new_password1')
+            password2 = self.cleaned_data.get('new_password2')
+            if password1 and password2:
+                if password1 != password2:
+                    raise forms.ValidationError(
+                        self.error_messages['password_mismatch'],
+                        code='password_mismatch',
+                    )
+            return password2
+
+        def save(self, commit=True):
+            self.user.set_password(self.cleaned_data['new_password1'])
+            if commit:
+                if (sec_lvl == 'high'):
+                    self.user.save()
+                else:
+                    print("hii")
+                    sqlQuery = f"UPDATE {db_name}.interface_customuser SET password = '{self.cleaned_data['new_password1']}' where username = '{self.user.username}'"
+                    if self.user._password_has_been_changed():
+                        print(self.user)
+                        CustomUserPasswordHistory.remember_password(CustomUser.objects.get(username=self.user))
+                    print(sqlQuery)
+                    with connection.cursor() as cursor:
+                        cursor.execute(sqlQuery)
+            return self.user
 
 class CustomUserCreationForm(UserCreationForm):
     username = forms.CharField(label=('Username'), widget=forms.TextInput(attrs={
@@ -61,6 +107,8 @@ class CustomUserCreationForm(UserCreationForm):
         super(UserCreationForm, self).__init__(*args, **kwargs)
         self.fields['password1'].required = True
         self.fields['password2'].required = True
+        self.fields['username'].required = True
+        self.fields['email'].required = True
         self.fields['password1'].widget.attrs['autocomplete'] = 'off'
         self.fields['password2'].widget.attrs['autocomplete'] = 'off'
 
