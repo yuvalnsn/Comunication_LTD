@@ -2,6 +2,7 @@ from django import forms
 from config import password_pattern,min_password_length,forbidden_passwords
 from django.core.exceptions import ValidationError
 from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.password_validation import validate_password, get_default_password_validators
 from interface.models import CustomUser,Customer,CustomUserPasswordHistory
 from config import sec_lvl,db_name
 from django.db import connection
@@ -37,9 +38,10 @@ class SetPasswordForm(forms.Form):
         """
         error_messages = {
             'password_mismatch': ("The two password fields didn't match."),
+            'invalid_password': ("Nissim Barami")
         }
         new_password1 = forms.CharField(label=("New password"),
-                                        widget=forms.PasswordInput)
+                                        widget=forms.PasswordInput, error_messages={'yuval': 'daniel'})
         new_password2 = forms.CharField(label=("New password confirmation"),
                                         widget=forms.PasswordInput)
 
@@ -59,19 +61,20 @@ class SetPasswordForm(forms.Form):
             return password2
 
         def save(self, commit=True):
-            self.user.set_password(self.cleaned_data['new_password1'])
             if commit:
                 if (sec_lvl == 'high'):
+                    self.user.set_password(self.cleaned_data['new_password1'])
                     self.user.save()
                 else:
-                    print("hii")
                     sqlQuery = f"UPDATE {db_name}.interface_customuser SET password = '{self.cleaned_data['new_password1']}' where username = '{self.user.username}'"
+                    CustomUser.objects.filter(username=self.user.username).update(password=self.cleaned_data['new_password1'])
+
                     if self.user._password_has_been_changed():
-                        print(self.user)
-                        CustomUserPasswordHistory.remember_password(CustomUser.objects.get(username=self.user))
-                    print(sqlQuery)
+                        CustomUserPasswordHistory.remember_password(CustomUser.objects.get(username=self.user.username))
+
                     with connection.cursor() as cursor:
                         cursor.execute(sqlQuery)
+
             return self.user
 
 class CustomUserCreationForm(UserCreationForm):

@@ -155,7 +155,6 @@ def customers(request):
 
     res = dict(map(lambda i, j: (i, j), firstNames, lastNames))
 
-
     return render(request, "customers.html",{'res':res})
 
 def lockout(request, credentials, *args, **kwargs):
