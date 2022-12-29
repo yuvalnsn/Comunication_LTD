@@ -7,7 +7,6 @@ from django.contrib.auth import authenticate, login
 from interface.models import CustomUser, Customer
 from django.conf import settings
 
-
 def dashboard(request):
     userId=request.user
     if not request.user.is_authenticated:
@@ -106,3 +105,7 @@ def customers(request):
 
 
     return render(request, "customers.html",{'res':res})
+
+def lockout(request, credentials, *args, **kwargs):
+    messages.warning(request, "User has been locked out!")
+    return render(request, "login.html", {'form': LoginForm()})
