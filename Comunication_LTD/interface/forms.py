@@ -1,5 +1,4 @@
 from django import forms
-from config import password_pattern,min_password_length,forbidden_passwords
 from django.core.exceptions import ValidationError
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.password_validation import validate_password, get_default_password_validators
@@ -20,8 +19,6 @@ DISPLAY_CHOICES = (
     ("Low", "Low")
 )
 class LoginForm(forms.Form):
-    #sec_level = forms.ChoiceField(label=('Select_Secuirty'),widget=forms.RadioSelect, choices=DISPLAY_CHOICES,initial='High')
-
     username = forms.CharField(label=('Username'), widget=forms.TextInput(attrs={
         'placeholder':('Username'),
         'class': "form-control fadeIn second m-2 shadow-sm control-label",
@@ -36,50 +33,57 @@ class LoginForm(forms.Form):
         'type': 'password',
     }))
 
-
 class SetPasswordForm(forms.Form):
-        """
-        A form that lets a user change set their password without entering the old
-        password
-        """
-        error_messages = {
-            'password_mismatch': ("The two password fields didn't match."),
-            'invalid_password': ("Nissim Barami")
-        }
-        new_password1 = forms.CharField(label=("New password"),
-                                        widget=forms.PasswordInput)
-        new_password2 = forms.CharField(label=("New password confirmation"),
-                                        widget=forms.PasswordInput)
+    error_messages = {
+        'password_mismatch': ("The two password fields didn't match.")
+    }
+    new_password1 = forms.CharField(
+        label=("New password"),
+        widget=forms.TextInput(attrs={
+            'placeholder': ('Password'),
+            'class': 'form-control fadeIn second m-2 shadow-sm control-label',
+            'onfocus': "this.placeholder=''",
+            'onblur': "this.placeholder='Password'",
+            'type': 'password',
+        }))
+    new_password2 = forms.CharField(
+        label=("New password confirmation"),
+        widget=forms.TextInput(attrs={
+            'placeholder': ('Password'),
+            'class': 'form-control fadeIn second m-2 shadow-sm control-label',
+            'onfocus': "this.placeholder=''",
+            'onblur': "this.placeholder='Password'",
+            'type': 'password',
+        }))
 
-        def __init__(self, user, *args, **kwargs):
-            self.user = user
-            super(SetPasswordForm, self).__init__(*args, **kwargs)
+    def __init__(self, user, *args, **kwargs):
+        self.user = user
+        super(SetPasswordForm, self).__init__(*args, **kwargs)
 
-        def clean_new_password2(self):
-            password1 = self.cleaned_data.get('new_password1')
-            password2 = self.cleaned_data.get('new_password2')
-            if password1 and password2:
-                if password1 != password2:
-                    raise forms.ValidationError(
-                        self.error_messages['password_mismatch'],
-                        code='password_mismatch',
-                    )
-                elif(sec_lvl == 'low'):
-                    try:
-                        validate_password(password1)
-                    except ValidationError as e:
-                        raise e
-            return password2
+    def clean_new_password2(self):
+        password1 = self.cleaned_data.get('new_password1')
+        password2 = self.cleaned_data.get('new_password2')
+        if password1 and password2:
+            if password1 != password2:
+                raise forms.ValidationError(
+                    self.error_messages['password_mismatch'],
+                    code='password_mismatch',
+                )
+            else:
+                validate_password(password1, self.user)
 
-        def save(self, commit=True):
-            if commit:
-                if (sec_lvl == 'high'):
-                    self.user.set_password(self.cleaned_data['new_password1'])
-                    self.user.save()
-                else:
+        return password2
 
-                    sqlQuery = f"UPDATE {db_name}.interface_customuser SET password = '{self.cleaned_data['new_password1']}' where username = '{self.user.username}'"
-                    CustomUser.objects.filter(username=self.user.username).update(password=self.cleaned_data['new_password1'])
+    def save(self, commit=True):
+        if commit:
+            password = self.cleaned_data['new_password1']
+            self.user.set_password(password)
+
+            if sec_lvl == 'high':
+                self.user.save()
+            else:
+                sqlQuery = f"UPDATE {db_name}.interface_customuser SET password = '{password}' where username = '{self.user.username}'"
+                CustomUser.objects.filter(username=self.user.username).update(password=password)
 
                     if self.user._password_has_been_changed():
                         CustomUserPasswordHistory.remember_password(CustomUser.objects.get(username=self.user.username))
