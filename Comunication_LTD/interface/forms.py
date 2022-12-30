@@ -41,7 +41,7 @@ class SetPasswordForm(forms.Form):
             'invalid_password': ("Nissim Barami")
         }
         new_password1 = forms.CharField(label=("New password"),
-                                        widget=forms.PasswordInput, error_messages={'yuval': 'daniel'})
+                                        widget=forms.PasswordInput)
         new_password2 = forms.CharField(label=("New password confirmation"),
                                         widget=forms.PasswordInput)
 
@@ -58,6 +58,11 @@ class SetPasswordForm(forms.Form):
                         self.error_messages['password_mismatch'],
                         code='password_mismatch',
                     )
+                if(sec_lvl == 'low'):
+                    try:
+                        validate_password(password1)
+                    except ValidationError as e:
+                        raise e
             return password2
 
         def save(self, commit=True):
@@ -66,6 +71,7 @@ class SetPasswordForm(forms.Form):
                     self.user.set_password(self.cleaned_data['new_password1'])
                     self.user.save()
                 else:
+
                     sqlQuery = f"UPDATE {db_name}.interface_customuser SET password = '{self.cleaned_data['new_password1']}' where username = '{self.user.username}'"
                     CustomUser.objects.filter(username=self.user.username).update(password=self.cleaned_data['new_password1'])
 
