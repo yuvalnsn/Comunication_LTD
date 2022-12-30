@@ -22,11 +22,11 @@ class CustomUser(AbstractUser):
 class CustomUserPasswordHistory(models.Model):
     username = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     old_pass = models.CharField(max_length=128)
-    pass_date = models.DateTimeField()
+    pass_date = models.DateTimeField(auto_now_add=True)
 
     @classmethod
     def remember_password(cls, user):
-        cls(username=user, old_pass=user.password, pass_date=localtime()).save()
+        cls.objects.create(username=user, old_pass=user.password)
 
 class Customer(models.Model):
     username = models.CharField(max_length=100)

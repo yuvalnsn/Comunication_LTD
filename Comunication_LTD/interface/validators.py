@@ -2,6 +2,7 @@ from django.contrib.auth.hashers import check_password
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext as _
 from interface.models import CustomUserPasswordHistory
+from config import sec_lvl
 
 import re
 
@@ -10,9 +11,14 @@ class DontRepeatValidator:
         self.history = history
 
     def validate(self, password, user=None):
-        for last_pass in self._get_last_passwords(user):
-            if check_password(password=password, encoded=last_pass):
+        last_history_passwords = self._get_last_passwords(user)
+
+        print(last_history_passwords)
+
+        for password_history in last_history_passwords:
+            if sec_lvl == 'high' and check_password(password=password, encoded=password_history) or sec_lvl == 'low' and password == password_history:
                 self._raise_validation_error()
+
 
     def get_help_text(self):
         return _("You cannot repeat passwords")
@@ -26,12 +32,11 @@ class DontRepeatValidator:
 
     def _get_last_passwords(self, user):
         all_history_user_passwords = CustomUserPasswordHistory.objects.filter(username_id=user).order_by('id')
-        to_index = all_history_user_passwords.count() - self.history
-        to_index = to_index if to_index > 0 else None
-        if to_index:
-            [u.delete() for u in all_history_user_passwords[0:to_index]]
-        return [p.old_pass for p in all_history_user_passwords[to_index:]]
+        length = len(all_history_user_passwords)
 
+        last_history_passwords = [password.old_pass for password in all_history_user_passwords[max(length - self.history, 0):]]
+
+        return last_history_passwords
 
 class PatternValidator:
     def __init__(self, pattern):
