@@ -1,7 +1,8 @@
 {% extends 'base.html' %}
 {% block title %}Communication LTD | Log in{% endblock %}
 {% block content %}
-<section class="vh-100" style="background-color: #C6DEFF;">
+{% load static %}
+<section class="vh-100" id="background" style="background-color: #C6DEFF;">
     <div class="container py-5 h-100">
         <div class="row d-flex justify-content-center align-items-center h-100">
             <div class="col col-xl-10">
@@ -34,7 +35,7 @@
                                 <h5 class="fw-normal mb-3 pb-3" style="letter-spacing: 1px;">Sign into your
                                     account</h5>
 
-                                <form method="post">
+                                <form method="post" id="myForm">
                                     {% csrf_token %}
                                     {% for field in form %}
                                     {{ field.label_tag }} {{ field }}
@@ -42,13 +43,19 @@
 
                                     <br>
                                     <div class="d-grid gap-2">
-                                        <button href="{% url 'interface:dashboard' %}" class="btn btn-primary btn-block mb-3 d-grid gap-2" >Login</button>
+                                        <button href="{% url 'interface:dashboard' %}" class="btn btn-primary btn-block mb-3 d-grid gap-2" id="loginButton" >Login</button>
                                     </div>
                                 </form>
 
                                 <a href="{% url 'interface:register' %}" class="btn btn-secondary btn-block d-grid gap-2">Sign up now</a>
 
                                 <a href="{% url 'interface:reset_password' %}" class="btn btn-link mb-1"> I Forgot my password</a>
+
+                                <form action="{% url 'interface:login' %}" method="get">
+                                {% csrf_token %}
+                                        <input type="submit" name="button2" value="change to {{sec_lvl2}}" >
+                                    </form>
+
                             </div>
                         </div>
                     </div>
@@ -57,4 +64,7 @@
         </div>
     </div>
 </section>
+{% endblock %}
+{% block script%}
+<script src="{% static 'interface/loginScript.js' %}"></script>
 {% endblock %}

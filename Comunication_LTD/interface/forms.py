@@ -15,8 +15,13 @@ def is_common_password(password: str):
             params={'value': password},
         )
 
-
+DISPLAY_CHOICES = (
+    ("High", "High"),
+    ("Low", "Low")
+)
 class LoginForm(forms.Form):
+    #sec_level = forms.ChoiceField(label=('Select_Secuirty'),widget=forms.RadioSelect, choices=DISPLAY_CHOICES,initial='High')
+
     username = forms.CharField(label=('Username'), widget=forms.TextInput(attrs={
         'placeholder':('Username'),
         'class': "form-control fadeIn second m-2 shadow-sm control-label",
@@ -30,6 +35,7 @@ class LoginForm(forms.Form):
         'onblur': "this.placeholder='password'",
         'type': 'password',
     }))
+
 
 class SetPasswordForm(forms.Form):
         """
@@ -58,7 +64,7 @@ class SetPasswordForm(forms.Form):
                         self.error_messages['password_mismatch'],
                         code='password_mismatch',
                     )
-                if(sec_lvl == 'low'):
+                elif(sec_lvl == 'low'):
                     try:
                         validate_password(password1)
                     except ValidationError as e:

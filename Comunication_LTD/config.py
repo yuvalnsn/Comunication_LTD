@@ -13,4 +13,7 @@ cooloff_time = int(config['login']['cooloffTime'])
 db_pass = config['dataBase']['db_pass']
 db_name = config['dataBase']['db_name']
 emailKey = config['emailKey']['key']
+global sec_lvl
 sec_lvl = config['security']['secLevel']
+
+

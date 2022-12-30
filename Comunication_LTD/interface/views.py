@@ -6,17 +6,22 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from interface.models import CustomUser, Customer,CustomUserPasswordHistory
 from django.conf import settings
-from config import sec_lvl,db_name
+from config import db_name
+import config
 from django.contrib.auth import signals
 
 from django.db import connection
 import datetime
-
+sec_lvl=config.sec_lvl
+def returnOpositeSecLvl(sec_lvl2):
+    if(sec_lvl2=='high'):
+        return 'low'
+    return 'high'
 #TODO: implement go-back browser button redirect to login, to dashboard, registernewcustomers, customers
 def is_logged_in(request):
-    if sec_lvl == 'high' and not request.user.is_authenticated:
+    if config.sec_lvl == 'high' and not request.user.is_authenticated:
         return False
-    elif sec_lvl == 'low' and request.session['user'] == '':
+    elif config.sec_lvl == 'low' and request.session['user'] == '':
         return False
     return True
 
@@ -34,7 +39,7 @@ def login2(request):
         #   form is valid
         username = form.cleaned_data['username']
         password = form.cleaned_data['password']
-        if sec_lvl == 'high':
+        if config.sec_lvl == 'high':
             user = authenticate(request, username=username, password=password)
             print(type(user))
             if user is None:
@@ -45,7 +50,7 @@ def login2(request):
                 login(request, user)
                 return redirect('/interface/dashboard')
 
-        elif sec_lvl == 'low':
+        elif config.sec_lvl == 'low':
             sqlQuery = "SELECT 1 FROM interface_customuser WHERE username = '%s' AND password = '%s'" % (username, password)
             isValidUser = False
             with connection.cursor() as cursor:
@@ -73,17 +78,23 @@ def login2(request):
                 return redirect('/interface/dashboard')
 
     else: # [GET] loading login form
-        return render(request,"login.html", {'form': LoginForm()})
+        opposite= returnOpositeSecLvl(config.sec_lvl)
+        if 'button2' in request.GET:
+            config.sec_lvl=opposite
+            opposite=returnOpositeSecLvl(config.sec_lvl)
+        form=LoginForm()
+        return render(request,"login.html", {'form':form,'sec_lvl2':opposite })
 
 def logoutView(request):
     if is_logged_in(request):
-        if sec_lvl == 'high':
+        if config.sec_lvl == 'high':
             logout(request)
-        elif sec_lvl == 'low':
+        elif config.sec_lvl == 'low':
             request.session['user'] = ''
     return redirect('/interface/login')
 
 def register(request):
+    print(config.sec_lvl)
     if request.method == "POST": # user is trying to signup
         form = CustomUserCreationForm(request.POST)
         if not form.is_valid():
@@ -101,10 +112,10 @@ def register(request):
             messages.error(request, "Email already registered")
             return redirect('/interface/register')
 
-        if sec_lvl == 'high':
+        if config.sec_lvl == 'high':
             user = CustomUser.objects.create_user(username=username, email=email, password=password)
             user.save()
-        elif sec_lvl == 'low':
+        elif config.sec_lvl == 'low':
             sqlQuery = f"INSERT INTO interface_customuser (is_superuser, first_name, last_name, is_staff, is_active, date_joined, username, email, password) VALUES (0, '', '', 0, 1, %s, '{username}', '{email}', '{password}')"
             with connection.cursor() as cursor:
                 cursor.execute(sqlQuery, [datetime.datetime.now()])
@@ -128,12 +139,12 @@ def registerCustomer(request):
             return render(request, "register.html", {'form': form})
         firstName = form.cleaned_data['firstName']
         lastName = form.cleaned_data['lastName']
-        username = request.user if sec_lvl == 'high' else request.session['user']
+        username = request.user if config.sec_lvl == 'high' else request.session['user']
 
-        if sec_lvl == 'high':
+        if config.sec_lvl == 'high':
             customer = Customer.objects.create(customerFirstName=firstName, customerLastName=lastName,username=username)
             customer.save()
-        elif sec_lvl == 'low':
+        elif config.sec_lvl == 'low':
             sqlQuery = "INSERT INTO project_hit.interface_customer (username, customerFirstName, customerLastName) VALUES ('%s', '%s', '%s')" % (username, firstName, lastName)
             with connection.cursor() as cursor:
                 cursor.execute(sqlQuery)
@@ -148,7 +159,7 @@ def customers(request):
     if not is_logged_in(request):
         return redirect('%s?next=%s' % (settings.LOGIN_URL, request.path))
 
-    userId = request.user if sec_lvl == 'high' else request.session['user']
+    userId = request.user if config.sec_lvl == 'high' else request.session['user']
     customers = Customer.objects.filter(username=userId)
     firstNames = list(customers.values_list('customerFirstName',flat=True))
     lastNames = list(customers.values_list('customerLastName',flat=True))
@@ -160,3 +171,5 @@ def customers(request):
 def lockout(request, credentials, *args, **kwargs):
     messages.warning(request, "User has been locked out!")
     return render(request, "login.html", {'form': LoginForm()})
+
+
