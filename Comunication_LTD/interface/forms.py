@@ -85,11 +85,11 @@ class SetPasswordForm(forms.Form):
                 sqlQuery = f"UPDATE {db_name}.interface_customuser SET password = '{password}' where username = '{self.user.username}'"
                 CustomUser.objects.filter(username=self.user.username).update(password=password)
 
-                    if self.user._password_has_been_changed():
-                        CustomUserPasswordHistory.remember_password(CustomUser.objects.get(username=self.user.username))
+                if self.user._password_has_been_changed():
+                    CustomUserPasswordHistory.remember_password(CustomUser.objects.get(username=self.user.username))
 
-                    with connection.cursor() as cursor:
-                        cursor.execute(sqlQuery)
+                with connection.cursor() as cursor:
+                    cursor.execute(sqlQuery)
 
             return self.user
 

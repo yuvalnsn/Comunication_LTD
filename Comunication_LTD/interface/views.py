@@ -12,11 +12,7 @@ from django.contrib.auth import signals
 
 from django.db import connection
 import datetime
-sec_lvl=config.sec_lvl
-def returnOpositeSecLvl(sec_lvl2):
-    if(sec_lvl2=='high'):
-        return 'low'
-    return 'high'
+
 #TODO: implement go-back browser button redirect to login, to dashboard, registernewcustomers, customers
 def is_logged_in(request):
     if config.sec_lvl == 'high' and not request.user.is_authenticated:
@@ -78,12 +74,10 @@ def login2(request):
                 return redirect('/interface/dashboard')
 
     else: # [GET] loading login form
-        opposite= returnOpositeSecLvl(config.sec_lvl)
-        if 'button2' in request.GET:
-            config.sec_lvl=opposite
-            opposite=returnOpositeSecLvl(config.sec_lvl)
-        form=LoginForm()
-        return render(request,"login.html", {'form':form,'sec_lvl2':opposite })
+        if 'security_btn' in request.GET:
+            config.sec_lvl = 'low' if config.sec_lvl == 'high' else 'high'
+        form = LoginForm()
+        return render(request,"login.html", {'form':form,'sec_lvl':config.sec_lvl })
 
 def logoutView(request):
     if is_logged_in(request):

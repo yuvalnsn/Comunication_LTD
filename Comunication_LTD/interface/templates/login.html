@@ -48,13 +48,16 @@
                                 </form>
 
                                 <a href="{% url 'interface:register' %}" class="btn btn-secondary btn-block d-grid gap-2">Sign up now</a>
-
                                 <a href="{% url 'interface:reset_password' %}" class="btn btn-link mb-1"> I Forgot my password</a>
 
                                 <form action="{% url 'interface:login' %}" method="get">
-                                {% csrf_token %}
-                                        <input type="submit" name="button2" value="change to {{sec_lvl2}}" >
-                                    </form>
+                                    {% csrf_token %}
+                                    {% if sec_lvl == 'high' %}
+                                    <input type="submit" name="security_btn" class="btn btn-danger" value="change to low">
+                                    {% else %}
+                                    <input type="submit" name="security_btn" class="btn btn-success" value="change to high">
+                                    {% endif %}
+                                </form>
 
                             </div>
                         </div>
