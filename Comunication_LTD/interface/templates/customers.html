@@ -24,7 +24,11 @@
                                     {% for key, value in res.items %}
                                     <tr>
                                         <td>{{key}}</td>
+                                        {% if sec_lvl == 'high' %}
                                         <td>{{value}}</td>
+                                        {% else %}
+                                        <td>{{value|safe}}</td>
+                                        {% endif %}
                                     </tr>
                                     {% endfor %}
                                 </tbody>

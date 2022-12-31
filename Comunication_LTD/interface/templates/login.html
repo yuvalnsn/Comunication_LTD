@@ -2,18 +2,31 @@
 {% block title %}Communication LTD | Log in{% endblock %}
 {% block content %}
 {% load static %}
-<section class="vh-100" id="background" style="background-color: #C6DEFF;">
+
+{% if sec_lvl == 'high' %}
+<section class="vh-100" id="background" style="background-color: #C6DEFF ;">
+{% endif %}
+
+{% if sec_lvl == 'low' %}
+<section class="vh-100" id="background2" style="background-color:  #fdeaea;">
+{% endif %}
     <div class="container py-5 h-100">
         <div class="row d-flex justify-content-center align-items-center h-100">
             <div class="col col-xl-10">
                 <div class="card" style="border-radius: 1rem;">
                     <div class="row g-0">
                         <div class="col-md-6 col-lg-5 d-none d-md-block">
+                            {% if sec_lvl == 'high' %}
                             <img alt="login form"
-                                 class="img-fluid" src="https://img.freepik.com/free-vector/forgot-password-concept-illustration_114360-1123.jpg?w=826
-              &t=st=1668170617~exp=1668171217~hmac=a660460f937f1cb226b858f29ab7ea588555e5a8fd8dbb798961d91664c43a72"
+                                 class="img-fluid" src="https://img.freepik.com/free-vector/forgot-password-concept-illustration_114360-1123.jpg?w=826&t=st=1668170617~exp=1668171217~hmac=a660460f937f1cb226b858f29ab7ea588555e5a8fd8dbb798961d91664c43a72"
                                  style="border-radius: 1rem 0 0 1rem;"/>
-                            {% for message in messages %}
+                            {% endif %}
+                        {% if sec_lvl == 'low' %}
+                            <img alt="login form"
+                                 class="img-fluid" src="https://i.imgur.com/wXcCzf4.png"
+                                 style="border-radius: 1rem 0 0 1rem;"/>
+                        {% endif %}
+                       {% for message in messages %}
                                 {% if message.tags == 'alert-danger' %}
                                 <li class="alert alert-danger" role="alert" style="margin-left: 20px">{{ message }}</li>
                                 {% elif message.tags == 'alert-warning' %}
@@ -53,12 +66,11 @@
                                 <form action="{% url 'interface:login' %}" method="get">
                                     {% csrf_token %}
                                     {% if sec_lvl == 'high' %}
-                                    <input type="submit" name="security_btn" class="btn btn-danger" value="change to low">
+                                    <input type="submit" name="security_btn" class="btn btn-danger" value="Change to low security">
                                     {% else %}
-                                    <input type="submit" name="security_btn" class="btn btn-success" value="change to high">
+                                    <input type="submit" name="security_btn" class="btn btn-success" value="Change to high security">
                                     {% endif %}
                                 </form>
-
                             </div>
                         </div>
                     </div>

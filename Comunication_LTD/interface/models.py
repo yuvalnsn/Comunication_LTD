@@ -29,6 +29,7 @@ class CustomUserPasswordHistory(models.Model):
         cls.objects.create(username=user, old_pass=user.password)
 
 class Customer(models.Model):
+    id = models.AutoField(primary_key=True)
     username = models.CharField(max_length=100)
     customerFirstName = models.CharField(max_length=128)
     customerLastName = models.CharField(max_length=128)

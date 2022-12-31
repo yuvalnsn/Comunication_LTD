@@ -17,14 +17,15 @@ import datetime
 def is_logged_in(request):
     if config.sec_lvl == 'high' and not request.user.is_authenticated:
         return False
-    elif config.sec_lvl == 'low' and request.session['user'] == '':
-        return False
+    elif config.sec_lvl == 'low':
+        if request.session['user'] == '':
+            return False
     return True
 
 def dashboard(request):
+    print("fashboard " +config.sec_lvl)
     if not is_logged_in(request):
         return redirect('%s?next=%s' % (settings.LOGIN_URL, request.path))
-
     return render(request,"dashboard.html", {})
 
 def login2(request):
@@ -77,6 +78,7 @@ def login2(request):
         if 'security_btn' in request.GET:
             config.sec_lvl = 'low' if config.sec_lvl == 'high' else 'high'
         form = LoginForm()
+        print(config.sec_lvl)
         return render(request,"login.html", {'form':form,'sec_lvl':config.sec_lvl })
 
 def logoutView(request):
@@ -88,7 +90,6 @@ def logoutView(request):
     return redirect('/interface/login')
 
 def register(request):
-    print(config.sec_lvl)
     if request.method == "POST": # user is trying to signup
         form = CustomUserCreationForm(request.POST)
         if not form.is_valid():
@@ -133,13 +134,18 @@ def registerCustomer(request):
             return render(request, "register.html", {'form': form})
         firstName = form.cleaned_data['firstName']
         lastName = form.cleaned_data['lastName']
-        username = request.user if config.sec_lvl == 'high' else request.session['user']
-
+        username = request.user if config.sec_lvl == 'high' else str(request.session['user'])
+        print("before high " + config.sec_lvl)
         if config.sec_lvl == 'high':
             customer = Customer.objects.create(customerFirstName=firstName, customerLastName=lastName,username=username)
-            customer.save()
+            print("before save " + config.sec_lvl )
+            try:
+                customer.save()
+            except:
+                pass
+            print("after save " + config.sec_lvl )
         elif config.sec_lvl == 'low':
-            sqlQuery = "INSERT INTO project_hit.interface_customer (username, customerFirstName, customerLastName) VALUES ('%s', '%s', '%s')" % (username, firstName, lastName)
+            sqlQuery = "INSERT INTO db_name.interface_customer (username, customerFirstName, customerLastName) VALUES ('%s', '%s', '%s')" % (username, firstName, lastName)
             with connection.cursor() as cursor:
                 cursor.execute(sqlQuery)
 
@@ -148,8 +154,8 @@ def registerCustomer(request):
     else:
         return render(request, "registerCustomer.html", {'form': form})
 
-
 def customers(request):
+    print("hii" + config.sec_lvl)
     if not is_logged_in(request):
         return redirect('%s?next=%s' % (settings.LOGIN_URL, request.path))
 
@@ -160,7 +166,7 @@ def customers(request):
 
     res = dict(map(lambda i, j: (i, j), firstNames, lastNames))
 
-    return render(request, "customers.html",{'res':res})
+    return render(request, "customers.html",{'res':res, 'sec_lvl': config.sec_lvl})
 
 def lockout(request, credentials, *args, **kwargs):
     messages.warning(request, "User has been locked out!")
