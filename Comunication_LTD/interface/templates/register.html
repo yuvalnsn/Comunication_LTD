@@ -1,8 +1,11 @@
 {% extends 'base.html' %}
 {% block title %}Communication LTD | Register {% endblock %}
 {% block content %}
-<section class="vh-100" style="background-color: #C6DEFF;">
-    <div class="container py-5 h-100">
+{% if sec_lvl == 'high' %}
+<section class="vh-100" id="background" style="background-color: #C6DEFF ;">
+{% else %}
+<section class="vh-100" id="background2" style="background-color:  #fdeaea;">
+{% endif %}    <div class="container py-5 h-100">
         <div class="row d-flex justify-content-center align-items-center h-100">
             <div class="col col-xl-10">
                 <div class="card" style="border-radius: 1rem;">

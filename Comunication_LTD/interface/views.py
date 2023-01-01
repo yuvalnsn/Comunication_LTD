@@ -26,7 +26,7 @@ def dashboard(request):
     print("fashboard " +config.sec_lvl)
     if not is_logged_in(request):
         return redirect('%s?next=%s' % (settings.LOGIN_URL, request.path))
-    return render(request,"dashboard.html", {})
+    return render(request,"dashboard.html", {'sec_lvl': config.sec_lvl})
 
 def login2(request):
     if request.method == "POST": # user is trying to signin
@@ -120,7 +120,7 @@ def register(request):
 
     else: # [GET] loading register form
         form = CustomUserCreationForm()
-        return render(request,"register.html", {'form': form})
+        return render(request,"register.html", {'form': form,'sec_lvl': config.sec_lvl})
 
 def registerCustomer(request):
     if not is_logged_in(request):
@@ -145,14 +145,14 @@ def registerCustomer(request):
                 pass
             print("after save " + config.sec_lvl )
         elif config.sec_lvl == 'low':
-            sqlQuery = "INSERT INTO db_name.interface_customer (username, customerFirstName, customerLastName) VALUES ('%s', '%s', '%s')" % (username, firstName, lastName)
+            sqlQuery = f"INSERT INTO {db_name}.interface_customer (username, customerFirstName, customerLastName) VALUES ('%s', '%s', '%s')" % (username, firstName, lastName)
             with connection.cursor() as cursor:
                 cursor.execute(sqlQuery)
 
         messages.success(request, "Your account has been created.")
         return redirect('/interface/customers')
     else:
-        return render(request, "registerCustomer.html", {'form': form})
+        return render(request, "registerCustomer.html", {'form': form,'sec_lvl': config.sec_lvl})
 
 def customers(request):
     print("hii" + config.sec_lvl)
