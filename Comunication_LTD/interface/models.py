@@ -33,5 +33,3 @@ class Customer(models.Model):
     username = models.CharField(max_length=100)
     customerFirstName = models.CharField(max_length=128)
     customerLastName = models.CharField(max_length=128)
-
-

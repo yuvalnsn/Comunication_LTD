@@ -75,23 +75,12 @@ class SetPasswordForm(forms.Form):
         return password2
 
     def save(self, commit=True):
+        self.user.set_password(self.cleaned_data['new_password1'])
+
         if commit:
-            password = self.cleaned_data['new_password1']
-            self.user.set_password(password)
+            self.user.save()
 
-            if sec_lvl == 'high':
-                self.user.save()
-            else:
-                sqlQuery = f"UPDATE {db_name}.interface_customuser SET password = '{password}' where username = '{self.user.username}'"
-                CustomUser.objects.filter(username=self.user.username).update(password=password)
-
-                if self.user._password_has_been_changed():
-                    CustomUserPasswordHistory.remember_password(CustomUser.objects.get(username=self.user.username))
-
-                with connection.cursor() as cursor:
-                    cursor.execute(sqlQuery)
-
-            return self.user
+        return self.user
 
 class CustomUserCreationForm(UserCreationForm):
     username = forms.CharField(label=('Username'), widget=forms.TextInput(attrs={
@@ -133,7 +122,7 @@ class CustomUserCreationForm(UserCreationForm):
 
     class Meta:
         model = CustomUser
-        fields = ('username', 'email')
+        fields = ('email', )
 
 class CustomUserChangeForm(SetPasswordForm):
 

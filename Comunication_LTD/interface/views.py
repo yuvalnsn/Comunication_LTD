@@ -4,6 +4,7 @@ from .forms import *
 #from termcolor import colored
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
+from  django.contrib.auth.hashers import make_password, check_password
 from interface.models import CustomUser, Customer,CustomUserPasswordHistory
 from django.conf import settings
 from config import db_name
@@ -23,7 +24,6 @@ def is_logged_in(request):
     return True
 
 def dashboard(request):
-    print("fashboard " +config.sec_lvl)
     if not is_logged_in(request):
         return redirect('%s?next=%s' % (settings.LOGIN_URL, request.path))
     return render(request,"dashboard.html", {'sec_lvl': config.sec_lvl})
@@ -38,7 +38,6 @@ def login2(request):
         password = form.cleaned_data['password']
         if config.sec_lvl == 'high':
             user = authenticate(request, username=username, password=password)
-            print(type(user))
             if user is None:
                 messages.error(request, "Password or username is incorrect")
                 return redirect('/interface/login')
@@ -48,15 +47,22 @@ def login2(request):
                 return redirect('/interface/dashboard')
 
         elif config.sec_lvl == 'low':
-            sqlQuery = "SELECT 1 FROM interface_customuser WHERE username = '%s' AND password = '%s'" % (username, password)
-            isValidUser = False
-            with connection.cursor() as cursor:
-                cursor.execute(sqlQuery)
-                isValidUser = len(cursor.fetchall()) > 0
+            sqlQuery = f"SELECT * FROM {db_name}.interface_customuser WHERE username = '{username}';"
 
-            # In case the password is not matching to the correct one
-            if not isValidUser:
-                # inform django-axes of failed login
+            print(sqlQuery)
+
+            cursor = connection.cursor()
+            cursor.execute(sqlQuery)
+            user = cursor.fetchone()
+
+
+            if user and check_password(password, user[1]):
+                sqlQuery = f"DELETE FROM {db_name}.axes_accessattempt WHERE username = '{username}'"
+                with connection.cursor() as cursor:
+                    cursor.execute(sqlQuery)
+                request.session['user'] = username
+                return redirect('/interface/dashboard')
+            else:
                 signals.user_login_failed.send(
                     sender=CustomUser,
                     request=request,
@@ -67,18 +73,10 @@ def login2(request):
                 messages.error(request, "Password or username is incorrect")
                 return redirect('/interface/login')
 
-            else:  # username and password is correct
-                sqlQuery=f"DELETE FROM {db_name}.axes_accessattempt WHERE username = '{username}'"
-                with connection.cursor() as cursor:
-                    cursor.execute(sqlQuery)
-                request.session['user'] = username
-                return redirect('/interface/dashboard')
-
     else: # [GET] loading login form
         if 'security_btn' in request.GET:
             config.sec_lvl = 'low' if config.sec_lvl == 'high' else 'high'
         form = LoginForm()
-        print(config.sec_lvl)
         return render(request,"login.html", {'form':form,'sec_lvl':config.sec_lvl })
 
 def logoutView(request):
@@ -111,7 +109,7 @@ def register(request):
             user = CustomUser.objects.create_user(username=username, email=email, password=password)
             user.save()
         elif config.sec_lvl == 'low':
-            sqlQuery = f"INSERT INTO interface_customuser (is_superuser, first_name, last_name, is_staff, is_active, date_joined, username, email, password) VALUES (0, '', '', 0, 1, %s, '{username}', '{email}', '{password}')"
+            sqlQuery = f"INSERT INTO interface_customuser (is_superuser, first_name, last_name, is_staff, is_active, date_joined, password, email, username) VALUES (0, '', '', 0, 1, %s, '{make_password(password)}', '{email}', '{username}')"
             with connection.cursor() as cursor:
                 cursor.execute(sqlQuery, [datetime.datetime.now()])
             CustomUserPasswordHistory.remember_password(CustomUser.objects.get(username=username))
@@ -135,15 +133,12 @@ def registerCustomer(request):
         firstName = form.cleaned_data['firstName']
         lastName = form.cleaned_data['lastName']
         username = request.user if config.sec_lvl == 'high' else str(request.session['user'])
-        print("before high " + config.sec_lvl)
         if config.sec_lvl == 'high':
             customer = Customer.objects.create(customerFirstName=firstName, customerLastName=lastName,username=username)
-            print("before save " + config.sec_lvl )
             try:
                 customer.save()
             except:
                 pass
-            print("after save " + config.sec_lvl )
         elif config.sec_lvl == 'low':
             sqlQuery = f"INSERT INTO {db_name}.interface_customer (username, customerFirstName, customerLastName) VALUES ('%s', '%s', '%s')" % (username, firstName, lastName)
             with connection.cursor() as cursor:
@@ -155,7 +150,6 @@ def registerCustomer(request):
         return render(request, "registerCustomer.html", {'form': form,'sec_lvl': config.sec_lvl})
 
 def customers(request):
-    print("hii" + config.sec_lvl)
     if not is_logged_in(request):
         return redirect('%s?next=%s' % (settings.LOGIN_URL, request.path))
 
