@@ -13,12 +13,9 @@ class DontRepeatValidator:
     def validate(self, password, user=None):
         last_history_passwords = self._get_last_passwords(user)
 
-        print(last_history_passwords)
-
         for password_history in last_history_passwords:
-            if sec_lvl == 'high' and check_password(password=password, encoded=password_history) or sec_lvl == 'low' and password == password_history:
+            if check_password(password=password, encoded=password_history):
                 self._raise_validation_error()
-
 
     def get_help_text(self):
         return _("You cannot repeat passwords")
