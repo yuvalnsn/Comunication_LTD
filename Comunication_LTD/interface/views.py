@@ -10,7 +10,8 @@ from django.conf import settings
 from config import db_name
 import config
 from django.contrib.auth import signals
-
+from django.contrib.auth.forms import PasswordChangeForm
+from django.core.exceptions import ValidationError
 from django.db import connection
 import datetime
 
@@ -48,8 +49,6 @@ def login2(request):
 
         elif config.sec_lvl == 'low':
             sqlQuery = f"SELECT * FROM {db_name}.interface_customuser WHERE username = '{username}';"
-
-            print(sqlQuery)
 
             cursor = connection.cursor()
             cursor.execute(sqlQuery)
@@ -167,3 +166,26 @@ def lockout(request, credentials, *args, **kwargs):
     return render(request, "login.html", {'form': LoginForm()})
 
 
+def change_password(request):
+    user = request.user if config.sec_lvl == 'high' else list(CustomUser.objects.filter(username=request.session['user']))[0]
+    form = PasswordChangeForm(CustomUser)
+
+    if request.method == "POST":
+        form = PasswordChangeForm(user, request.POST)
+
+        if not form.is_valid():
+            return render(request, "change_password.html", {'form': form})
+        new_password = form.cleaned_data['new_password1']
+        try:
+            user.set_password(new_password)
+            user.save()
+            messages.success(request, "Your password has been changed, successfully!")
+            if config.sec_lvl == 'low':
+                request.session['user'] = ''
+        except ValidationError as e:
+            messages.error(request, e)
+            return render(request, "change_password.html", {'form': form})
+
+        return redirect('/interface/login')
+    else:
+        return render(request, "change_password.html", {'form': form, 'sec_lvl': config.sec_lvl})

@@ -3,6 +3,7 @@ from django.core.exceptions import ValidationError
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.password_validation import validate_password, get_default_password_validators
 from interface.models import CustomUser,Customer,CustomUserPasswordHistory
+from django.contrib.auth.hashers import check_password
 from config import sec_lvl,db_name
 from django.db import connection
 import datetime
