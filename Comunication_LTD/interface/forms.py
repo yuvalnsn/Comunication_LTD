@@ -6,6 +6,8 @@ from interface.models import CustomUser,Customer,CustomUserPasswordHistory
 from django.contrib.auth.hashers import check_password
 from config import sec_lvl,db_name
 from django.db import connection
+from django.contrib.auth.forms import PasswordChangeForm
+
 import datetime
 
 def is_common_password(password: str):
@@ -143,4 +145,33 @@ class registerCustomerForm(forms.Form):
             'class': "form-control fadeIn second m-2 shadow-sm",
             'onfocus': "this.placeholder=''",
             'onblur': "this.placeholder='lastName'"
+        }))
+
+class MyPasswordChangeForm(PasswordChangeForm):
+    old_password = forms.CharField(
+        label=("Old password"),
+        widget=forms.TextInput(attrs={
+            'placeholder': ('Enter old password'),
+            'class': 'form-control fadeIn second m-2 shadow-sm control-label',
+            'onfocus': "this.placeholder=''",
+            'onblur': "this.placeholder='Enter old password'",
+            'type': 'password',
+        }))
+    new_password1 = forms.CharField(
+        label=("New password"),
+        widget=forms.TextInput(attrs={
+            'placeholder': ('Password'),
+            'class': 'form-control fadeIn second m-2 shadow-sm control-label',
+            'onfocus': "this.placeholder=''",
+            'onblur': "this.placeholder='Password'",
+            'type': 'password',
+        }))
+    new_password2 = forms.CharField(
+        label=("New password confirmation"),
+        widget=forms.TextInput(attrs={
+            'placeholder': ('Password'),
+            'class': 'form-control fadeIn second m-2 shadow-sm control-label',
+            'onfocus': "this.placeholder=''",
+            'onblur': "this.placeholder='New password confirmation'",
+            'type': 'password',
         }))

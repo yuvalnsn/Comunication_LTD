@@ -33,7 +33,7 @@ def login2(request):
     if request.method == "POST": # user is trying to signin
         form = LoginForm(request.POST)
         if not form.is_valid():
-            return render(request,"login.html", {'form': LoginForm()})
+            return render(request,"login.html", {'form': LoginForm(), 'sec_lvl': config.sec_lvl})
         #   form is valid
         username = form.cleaned_data['username']
         password = form.cleaned_data['password']
@@ -90,27 +90,33 @@ def register(request):
     if request.method == "POST": # user is trying to signup
         form = CustomUserCreationForm(request.POST)
         if not form.is_valid():
-            return render(request, "register.html", {'form': form})
+            return render(request, "register.html", {'form': form, 'sec_lvl': config.sec_lvl})
     #     form is valid (password satisfies the conditions)
         email = form.cleaned_data['email']
         username = form.cleaned_data['username']
         password = form.cleaned_data['password1']
 
         if CustomUser.objects.filter(username = username).exists():
+            print("User condition")
             messages.error(request, "Username is already exists")
-            return render(request, "register.html", {'form': form})
+            return render(request, "register.html", {'form': form, 'sec_lvl': config.sec_lvl})
 
         if CustomUser.objects.filter(email = email).exists():
+            print("Email condition")
             messages.error(request, "Email already registered")
-            return redirect('/interface/register')
+            return render(request, "register.html", {'form': form, 'sec_lvl': config.sec_lvl})
 
         if config.sec_lvl == 'high':
             user = CustomUser.objects.create_user(username=username, email=email, password=password)
             user.save()
         elif config.sec_lvl == 'low':
             sqlQuery = f"INSERT INTO interface_customuser (is_superuser, first_name, last_name, is_staff, is_active, date_joined, password, email, username) VALUES (0, '', '', 0, 1, %s, '{make_password(password)}', '{email}', '{username}')"
-            with connection.cursor() as cursor:
-                cursor.execute(sqlQuery, [datetime.datetime.now()])
+            try:
+                with connection.cursor() as cursor:
+                    cursor.execute(sqlQuery, [datetime.datetime.now()])
+            except Exception as e:
+                messages.error(request, e)
+                return render(request, "register.html", {'form': form, 'sec_lvl': config.sec_lvl})
             CustomUserPasswordHistory.remember_password(CustomUser.objects.get(username=username))
         messages.success(request, "Your account has been created.")
         return redirect('/interface/login')
@@ -128,7 +134,7 @@ def registerCustomer(request):
     if request.method == "POST": # user is trying to signup
         form = registerCustomerForm(request.POST)
         if not form.is_valid():
-            return render(request, "register.html", {'form': form})
+            return render(request, "register.html", {'form': form, 'sec_lvl': config.sec_lvl})
         firstName = form.cleaned_data['firstName']
         lastName = form.cleaned_data['lastName']
         username = request.user if config.sec_lvl == 'high' else str(request.session['user'])
@@ -143,7 +149,6 @@ def registerCustomer(request):
             with connection.cursor() as cursor:
                 cursor.execute(sqlQuery)
 
-        messages.success(request, "Your account has been created.")
         return redirect('/interface/customers')
     else:
         return render(request, "registerCustomer.html", {'form': form,'sec_lvl': config.sec_lvl})
@@ -163,18 +168,18 @@ def customers(request):
 
 def lockout(request, credentials, *args, **kwargs):
     messages.warning(request, "User has been locked out!")
-    return render(request, "login.html", {'form': LoginForm()})
+    return render(request, "login.html", {'form': LoginForm(), 'sec_lvl': config.sec_lvl})
 
 
 def change_password(request):
     user = request.user if config.sec_lvl == 'high' else list(CustomUser.objects.filter(username=request.session['user']))[0]
-    form = PasswordChangeForm(CustomUser)
-
+    form = MyPasswordChangeForm(CustomUser)
+    print(config.sec_lvl)
     if request.method == "POST":
-        form = PasswordChangeForm(user, request.POST)
+        form = MyPasswordChangeForm(user, request.POST)
 
         if not form.is_valid():
-            return render(request, "change_password.html", {'form': form})
+            return render(request, "change_password.html", {'form': form, 'sec_lvl': config.sec_lvl})
         new_password = form.cleaned_data['new_password1']
         try:
             user.set_password(new_password)
@@ -184,7 +189,7 @@ def change_password(request):
                 request.session['user'] = ''
         except ValidationError as e:
             messages.error(request, e)
-            return render(request, "change_password.html", {'form': form})
+            return render(request, "change_password.html", {'form': form, 'sec_lvl': config.sec_lvl})
 
         return redirect('/interface/login')
     else:
