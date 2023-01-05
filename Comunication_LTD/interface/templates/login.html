@@ -108,6 +108,8 @@
                             <div class="card-body p-4 p-lg-5 text-black">
                                 <div class="d-flex align-items-center mb-3 pb-1">
                                     <i class="fas fa-cubes fa-2x me-3" style="color: #ff6219;"></i>
+                                                                             <i class="fas fa-lock-open"></i>
+
                                     <span class="h1 fw-bold">Communication LTD</span>
                                 </div>
 
@@ -133,10 +135,8 @@
                                     {% csrf_token %}
                                     {% if sec_lvl == 'high' %}
                                     <input type="submit" name="security_btn" class="btn btn-success" value="Change to high security">
-                                    <i class="fas fa-lock"></i>
                                     {% else %}
                                     <input type="submit" name="security_btn" class="btn btn-success" value="Change to high security">
-                                    <i class="fas fa-lock-open"></i>
                                     {% endif %}
 
                                 </form>
