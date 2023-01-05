@@ -98,7 +98,7 @@ def register(request):
 
         if CustomUser.objects.filter(username = username).exists():
             messages.error(request, "Username is already exists")
-            return redirect('/interface/register')
+            return render(request, "register.html", {'form': form})
 
         if CustomUser.objects.filter(email = email).exists():
             messages.error(request, "Email already registered")

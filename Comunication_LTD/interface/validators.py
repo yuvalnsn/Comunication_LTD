@@ -2,7 +2,7 @@ from django.contrib.auth.hashers import check_password
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext as _
 from interface.models import CustomUserPasswordHistory
-from config import sec_lvl
+from config import sec_lvl,patternDescription
 
 import re
 
@@ -45,9 +45,9 @@ class PatternValidator:
             self._raise_validation_error()
     def _raise_validation_error(self):
         raise ValidationError(
-            _("Your password does not meet the requirements"),
+            _(str(patternDescription)),
             code='password_has_been_used',
             params={'pattern': self.pattern},
         )
     def get_help_text(self):
-        return _("Your password does not meet the requirements")
+        return _(str(patternDescription))

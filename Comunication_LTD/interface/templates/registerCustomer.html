@@ -5,14 +5,18 @@
 {% if sec_lvl == 'high' %}
 <section class="vh-100" id="background" style="background-color: #C6DEFF ;">
 {% else %}
-<section class="vh-100" id="background2" style="background-color:  #9b0a1b;">
+<section class="vh-100" id="background2" style="background-color:  #fdeaea;">
 {% endif %}
     <div class="container py-5 h-100">
         <div class="row d-flex justify-content-center align-items-center h-100">
             <div class="col-md-6">
                 <div class="card" style="border-radius: 1rem;">
                     <div class="card-header d-flex align-items-center mb-3 pb-1">
+                        {% if sec_lvl == 'high' %}
+                        <i class="fas fa-cubes fa-2x mr-3" style="color: #4693fd;"></i>
+                        {% else %}
                         <i class="fas fa-cubes fa-2x mr-3" style="color: #ff6219;"></i>
+                        {% endif %}
                         <span class="h1 fw-bold mb-0">Create new customer</span>
                     </div>
                     <div class="card-body p-4 p-lg-5 text-black">

@@ -6,6 +6,8 @@ config.read(CONFIG_FILE)
 
 min_password_length = int(config['register']["minPasswordLength"])
 password_pattern = config['register']["passwordPattern"]
+patternDescription=config['register']['patternDescription']
+
 forbidden_passwords = config['register']["commonPasswords"].split(",")
 limit_password_history = int(config['register']["limitPasswordHistory"])
 loging_attempts = int(config['login']['loginAttempts'])

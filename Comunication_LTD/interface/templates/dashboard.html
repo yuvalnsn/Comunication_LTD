@@ -1,12 +1,12 @@
 {% extends 'base.html' %}
 {% block title %}Communication LTD | Dashboard{% endblock %}
 {% block content %}
-{% include 'navbar.html' %}
+{% include "navbar.html" with sec_lvl=sec_lvl %}
 
 <div class="row d-flex justify-content-center mt-5">
     <div class="card border-primary mb-3 text-center ms-3 h-100 flex-fill" style="width: 18rem;">
         <div class="card-body">
-            <h5 class="card-title">Final project in computers security course</h5>
+            <h5 class="card-title">Final project in computers security course {{ sec_lvl }}</h5>
             <p class="card-text">In this project we followed the official course requirements</p>
             <a class="btn btn-primary" href="#">Requirements doc</a>
         </div>

@@ -11,19 +11,27 @@
                 <div class="card" style="border-radius: 1rem;">
                     <div class="row g-0">
                         <div class="col-md-6 col-lg-5 d-none d-md-block">
+                             {% if sec_lvl == 'high' %}
                             <img alt="login form"
-                                 class="img-fluid" src="https://img.freepik.com/free-vector/forgot-password-concept-illustration_114360-1123.jpg?w=826
-            &t=st=1668170617~exp=1668171217~hmac=a660460f937f1cb226b858f29ab7ea588555e5a8fd8dbb798961d91664c43a72"
+                                 class="img-fluid" src="https://img.freepik.com/free-vector/forgot-password-concept-illustration_114360-1123.jpg?w=826&t=st=1668170617~exp=1668171217~hmac=a660460f937f1cb226b858f29ab7ea588555e5a8fd8dbb798961d91664c43a72"
                                  style="border-radius: 1rem 0 0 1rem;"/>
+                            {% endif %}
+                        {% if sec_lvl == 'low' %}
+                            <img alt="login form"
+                                 class="img-fluid" src="https://img.freepik.com/free-vector/hacker-breaking-lock-get-access-personal-information-computer-isometric_1284-63723.jpg?w=1060&t=st=1672943335~exp=1672943935~hmac=eb3a1e6388e411855adf9ef9b121d6b6915fb711baa0e174d7142ce14211472f"
+                                 style="border-radius: 1rem 0 0 1rem;"/>
+                        {% endif %}
                         </div>
                         <div class="col-md-6 col-lg-7 d-flex align-items-center">
                             <div class="card-body p-4 p-lg-5 text-black">
                                 <div class="d-flex align-items-center mb-3 pb-1">
-                                    <i class="fas fa-cubes fa-2x me-3" style="color: #ff6219;"></i>
-                                    <span class="h1 fw-bold mb-0">Communication LTD</span>
+                        {% if sec_lvl == 'high' %}
+                        <i class="fas fa-cubes fa-2x mr-3" style="color: #4693fd;"></i>
+                        {% else %}
+                        <i class="fas fa-cubes fa-2x mr-3" style="color: #ff6219;"></i>
+                        {% endif %}                                         <span class="h1 fw-bold mb-0">Communication LTD</span>
                                 </div>
                                 <h5 class="fw-normal mb-6 pb-3" style="letter-spacing: 0px;">Register</h5>
-                                {% include 'messages.html' %}
                                 <form method="post">
                                     <form method="post">
                                         {% csrf_token %}
