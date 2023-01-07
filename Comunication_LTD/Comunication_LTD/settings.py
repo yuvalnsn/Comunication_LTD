@@ -31,6 +31,9 @@ SECRET_KEY = 'django-insecure-tdi9e)+qik4rv#n1-*#_1)l&(irqp)av6t@puh#0z@6#=*c#de
 DEBUG = True
 
 ALLOWED_HOSTS = []
+RUNSERVERPLUS_SERVER_ARGS = {
+    'ssl_version': '1.2'
+}
 
 
 # Application definition
@@ -43,7 +46,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'interface'
+    'interface',
+    "django_extensions",
+
 ]
 
 MIDDLEWARE = [
